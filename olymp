@@ -1,20 +1,23 @@
 #!/usr/bin/perl -w # -*- perl -*-
 #
-# $Id: olymp,v 1.2 2002-10-13 16:54:43 grahn Exp $
+# $Id: olymp,v 1.3 2002-10-13 18:42:51 grahn Exp $
 # 
 
 use strict;
 use POSIX qw(strftime);
+use vars qw($opt_e);
+use Getopt::Std;
 
 my %monthcodes = ("1" => 1, "2" => 2, "3" => 3,
 		  "4" => 4, "5" => 5, "6" => 6,
 		  "7" => 7, "8" => 8, "9" => 9,
 		  "a" =>10, "b" =>11, "c" =>12);
 
+getopts('e') or die;
+
 while(my $file = shift) {
 
     my ($prefix, $year, $month, $day, $index);
-    my  $new;
 
     if($file =~ /(.*?)p([0-9abc])(\d{2})(\d{4})\.jpg/) {
 
@@ -24,7 +27,6 @@ while(my $file = shift) {
     elsif($file =~ /(.*?)(\d{2})(\d{2})(\d{2})\_(\d{2})\.jpg/) {
 
 	($prefix, $year, $month, $day, $index) = ($1, $2, $3, $4, $5);
-	$new = $file;
     }
     else {
 	next;
@@ -45,6 +47,12 @@ while(my $file = shift) {
 	if (sprintf "%02d%02d%02d", $year, $month, $day)
 	    eq (strftime "%y%m%d", localtime $mtime);
 
-    printf "%02d%02d%02d_%02d.jpg\n", $year, $month, $day, $index;
+    my  $new = sprintf "%02d%02d%02d_%02d.jpg", $year, $month, $day, $index;
+    print "$new\n";
     print "$hours\n\n";
+
+    if(defined($opt_e)) {
+	# we want to rename as well
+	rename($file, "$prefix$new") unless -e "$prefix$new";
+    }
 }
