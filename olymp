@@ -1,0 +1,45 @@
+#!/usr/bin/perl -w # -*- perl -*-
+#
+# $Id: olymp,v 1.1 2002-06-16 16:07:16 grahn Exp $
+# 
+
+use strict;
+use POSIX qw(strftime);
+
+while(my $file = shift) {
+
+    my ($prefix, $year, $month, $day, $index);
+    my  $new;
+
+    if($file =~ /(.*?)p(\d{1,2})(\d{2})(\d{4})\.jpg/) {
+
+	($prefix, $month, $day, $index) = ($1, $2, $3, $4);
+	$year = 2;
+    }
+    elsif($file =~ /(.*?)(\d{2})(\d{2})(\d{2})\_(\d{2})\.jpg/) {
+
+	($prefix, $year, $month, $day, $index) = ($1, $2, $3, $4, $5);
+	$new = $file;
+    }
+    else {
+	next;
+    }
+
+    next if $month>12 or $day>31 or $index>99;
+    next unless -e $file;
+
+    # find its creation time
+
+    my ($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime,$ctime) =
+	stat $file
+	    or die;
+
+    # if it matches the sate in the file name, we can trust the time, too
+    my $hours = "00:00";
+    $hours = strftime "%H:%M", localtime $mtime
+	if (sprintf "%02d%02d%02d", $year, $month, $day)
+	    eq (strftime "%y%m%d", localtime $mtime);
+
+    printf "%02d%02d%02d_%02d.jpg\n", $year, $month, $day, $index;
+    print "$hours\n\n";
+}
