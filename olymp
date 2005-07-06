@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w # -*- perl -*-
 #
-# $Id: olymp,v 1.6 2005-01-06 15:31:50 grahn Exp $
+# $Id: olymp,v 1.7 2005-07-06 14:01:11 grahn Exp $
 # 
 
 use strict;
@@ -22,17 +22,17 @@ while(my $file = shift) {
     if($file =~ /(.*?)p([0-9abc])(\d{2})(\d{4})\.jpg/) {
 
 	($prefix, $month, $day, $index) = ($1, $monthcodes{$2}, $3, $4);
-	$year = 5;
+	$year = 2005;
     }
-    elsif($file =~ /(.*?)(\d{2})(\d{2})(\d{2})\_(\d{2})\.jpg/) {
+    elsif($file =~ m|(.*?/)?(\d{2})(\d{2})(\d{2})\_(\d{2})\.jpg|) {
 
-	($prefix, $year, $month, $day, $index) = ($1, $2, $3, $4, $5);
+	($prefix, $year, $month, $day, $index) = ($1, 2000+$2, $3, $4, $5);
     }
     else {
 	next;
     }
 
-    next if $month>12 or $day>31 or $index>99;
+    next if $month>12 or $day>31;
     next unless -e $file;
 
     # find its creation time
@@ -44,10 +44,10 @@ while(my $file = shift) {
     # if it matches the date in the file name, we can trust the time, too
     my $hours = "00:00";
     $hours = strftime "%H:%M", localtime $mtime
-	if (sprintf "%02d%02d%02d", $year, $month, $day)
-	    eq (strftime "%y%m%d", localtime $mtime);
+	if (sprintf "%04d%02d%02d", $year, $month, $day)
+	    eq (strftime "%Y%m%d", localtime $mtime);
 
-    my  $new = sprintf "%02d%02d%02d_%02d.jpg", $year, $month, $day, $index;
+    my  $new = sprintf "%04d-%02d-%02d_%04d.jpg", $year, $month, $day, $index;
     print "$new\n";
     print "$hours\n\n";
 
@@ -56,3 +56,60 @@ while(my $file = shift) {
 	rename($file, "$prefix$new") unless -e "$prefix$new";
     }
 }
+
+__END__
+
+=head1 NAME
+
+olymp - enumerate and/or rename Olympus digital camera photos
+
+=head1 SYNOPSIS
+
+B<olymp>
+[ B<-e> ]
+I<file>
+...
+
+=head1 DESCRIPTION
+
+Olympus cameras (at least the Camedia C-7x0 UZ series)
+store images in files with pretty silly names, like B<p7050124.jpg>.
+This translates to
+"the current year,
+month 7,
+day 05,
+image serial number 0124".
+
+This utility prints a more readable variation of the file name,
+along with the time.
+Optionally, if the B<-e> option is given,
+the file is renamed in the same fashion.
+
+The time stamp of the file is used for correlation, and for
+finding the time of day the photos were taken.
+The camera stores a correct (if you configure it correctly)
+time stamp; it is up to you to preserve it when copying the file.
+
+The generated file names look like
+B<2005-07-06_0018.jpg>.
+This assures that they sort correctly in e.g. directory listing.
+
+=head1 NOTES
+
+Earlier versions of this script generated file names on the form
+B<050706_18.jpg>.
+These file names are accepted, just like the original Olympus file names.
+
+All this assumes you I<do> have a correctly set camera system clock,
+and have retained the original time stamp on the file.
+
+=head1 BUGS
+
+Should I<really> use the EXIF information inside the image
+(still in combination with the file name).
+
+=head1 AUTHOR
+
+Jörgen Grahn I<E<lt>jgrahn@algonet.seE<gt>>
+
+=cut
