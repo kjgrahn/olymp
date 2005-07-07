@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w # -*- perl -*-
 #
-# $Id: olymp,v 1.7 2005-07-06 14:01:11 grahn Exp $
+# $Id: olymp,v 1.8 2005-07-07 18:26:57 grahn Exp $
 # 
 
 use strict;
@@ -28,6 +28,10 @@ while(my $file = shift) {
 
 	($prefix, $year, $month, $day, $index) = ($1, 2000+$2, $3, $4, $5);
     }
+    elsif($file =~ m|(.*?/)?(20\d{2})-(\d{2})-(\d{2})\_(\d{4})\.jpg|) {
+
+	($prefix, $year, $month, $day, $index) = ($1, $2, $3, $4, $5);
+    }
     else {
 	next;
     }
@@ -41,15 +45,17 @@ while(my $file = shift) {
 	stat $file
 	    or die;
 
+    my $date = sprintf "%04d-%02d-%02d", $year, $month, $day;
+
     # if it matches the date in the file name, we can trust the time, too
     my $hours = "00:00";
     $hours = strftime "%H:%M", localtime $mtime
 	if (sprintf "%04d%02d%02d", $year, $month, $day)
 	    eq (strftime "%Y%m%d", localtime $mtime);
 
-    my  $new = sprintf "%04d-%02d-%02d_%04d.jpg", $year, $month, $day, $index;
+    my  $new = sprintf "%s_%04d.jpg", $date, $index;
     print "$new\n";
-    print "$hours\n\n";
+    print "$date $hours\n\n";
 
     if(defined($opt_e)) {
 	# we want to rename as well
@@ -81,7 +87,7 @@ day 05,
 image serial number 0124".
 
 This utility prints a more readable variation of the file name,
-along with the time.
+along with the date and time.
 Optionally, if the B<-e> option is given,
 the file is renamed in the same fashion.
 
@@ -98,7 +104,8 @@ This assures that they sort correctly in e.g. directory listing.
 
 Earlier versions of this script generated file names on the form
 B<050706_18.jpg>.
-These file names are accepted, just like the original Olympus file names.
+These file names are accepted, just like the original Olympus file names
+(and the new file names for that matter).
 
 All this assumes you I<do> have a correctly set camera system clock,
 and have retained the original time stamp on the file.
