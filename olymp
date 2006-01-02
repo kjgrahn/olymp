@@ -1,6 +1,6 @@
-#!/usr/bin/perl -w # -*- perl -*-
+#!/usr/bin/perl -w
 #
-# $Id: olymp,v 1.8 2005-07-07 18:26:57 grahn Exp $
+# $Id: olymp,v 1.9 2006-01-02 22:27:07 grahn Exp $
 # 
 
 use strict;
@@ -22,7 +22,7 @@ while(my $file = shift) {
     if($file =~ /(.*?)p([0-9abc])(\d{2})(\d{4})\.jpg/) {
 
 	($prefix, $month, $day, $index) = ($1, $monthcodes{$2}, $3, $4);
-	$year = 2005;
+	$year = 2006;
     }
     elsif($file =~ m|(.*?/)?(\d{2})(\d{2})(\d{2})\_(\d{2})\.jpg|) {
 
