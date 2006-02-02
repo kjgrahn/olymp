@@ -1,0 +1,65 @@
+.\" $Id: olymp.1,v 1.1 2006-02-02 19:53:59 grahn Exp $
+.\" $Name:  $
+.\" 
+.\"
+.ss 12 0
+.
+.TH olymp 1 "FEB 2006" "Olymp" "User Manuals"
+.
+.SH "NAME"
+olymp \- enumerate and/or rename Olympus digital camera photos
+.
+.SH "SYNOPSIS"
+.B olymp
+.RB [ \-e ]
+.I file
+\&...
+.
+.SH "DESCRIPTION"
+.
+Olympus cameras (at least the Camedia C-7x0 UZ series)
+store images in files with pretty silly names, like
+.BR p7050124.jpg .
+This translates to
+\[lq]the current year,
+month 7,
+day 05,
+image serial number 0124\[rq].
+.LP
+This utility prints a more readable variation of the file name,
+along with the date and time.
+Optionally, if the
+.B \-e
+option is given,
+the file is renamed in the same fashion.
+.LP
+The time stamp of the file is used for correlation, and for
+finding the time of day the photos were taken.
+The camera stores a correct (if you configure it correctly)
+time stamp; it is up to you to preserve it when copying the file.
+.LP
+The generated file names look like
+.BR 2005-07-06_0018.jpg .
+This assures that they sort correctly in e.g. directory listing.
+.
+.SH "NOTES"
+.
+Earlier versions of this script generated file names on the form
+.BR 050706_18.jpg .
+These file names are accepted, just like the original Olympus file names
+(and the new file names for that matter).
+.LP
+All this assumes you
+.I do
+have a correctly set camera system clock,
+and have retained the original time stamp on the file.
+.
+.SH "BUGS"
+.
+Should
+.I really
+use the EXIF information inside the image
+(still in combination with the file name).
+.
+.SH "AUTHOR"
+J\(:orgen Grahn \fI<grahn+src@snipabacken.dyndns.org>
