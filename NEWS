@@ -1,0 +1,10 @@
+
+olymp 2.0 (2006-02-05):
+  - First public release.
+  - Completely rewritten (in Python). Now uses the EXIF information
+    rather than file names and file modification dates, except the
+    image serial number still comes from the file name.
+
+_________________________________________
+$Id: NEWS,v 1.1 2006-02-05 20:00:08 grahn Exp $
+$Name:  $
