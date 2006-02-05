@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: iso-8859-1 -*-
 #
-# $Id: olymp,v 1.15 2006-02-05 20:10:13 grahn Exp $
+# $Id: olymp,v 1.16 2006-02-05 20:11:50 grahn Exp $
 # $Name:  $
 #
 # Copyright (c) 2002--2006 Jörgen Grahn
@@ -17,7 +17,7 @@ def _cvs_says(dollarname='$Name:  $'):
     if not m: return ('olymp', 'unknown')
     return m.group(1), m.group(2).replace('-', '.')
 
-_edatere = re.compile(r'(\d{4}:\d{2}:\d{2})\s(\d{2}:\d{2}):\d{2}')
+_edatere = re.compile(r'(20\d{2}:\d{2}:\d{2})\s(\d{2}:\d{2}):\d{2}')
 
 def exifdate(f):
     """Find a date on the form '2005:10:23 20:04:17' in the EXIF
