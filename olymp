@@ -1,7 +1,8 @@
 #!/usr/bin/python
 # -*- coding: iso-8859-1 -*-
 #
-# $Id: olymp,v 1.14 2006-02-05 19:57:16 grahn Exp $
+# $Id: olymp,v 1.15 2006-02-05 20:10:13 grahn Exp $
+# $Name:  $
 #
 # Copyright (c) 2002--2006 Jörgen Grahn
 # All rights reserved.
@@ -10,6 +11,11 @@
 """
 import os
 import re
+
+def _cvs_says(dollarname='$Name:  $'):
+    m = re.match(r'\$'r'Name:\s+(.+?)-(\d+(-\d+)*)\D', dollarname)
+    if not m: return ('olymp', 'unknown')
+    return m.group(1), m.group(2).replace('-', '.')
 
 _edatere = re.compile(r'(\d{4}:\d{2}:\d{2})\s(\d{2}:\d{2}):\d{2}')
 
@@ -64,6 +70,7 @@ def olymp(files, output, errput, rename=0):
                 os.rename(oldpath, newpath)
         except (ValueError, IOError), s:
             print >>errput, '%s: %s' % (f, s)
+    return 1
 
 if __name__ == "__main__":
     import getopt
@@ -73,10 +80,15 @@ if __name__ == "__main__":
     usage = 'usage: %s [-e] file ...' % prog
     try:
         rename = 0
-        opts, files = getopt.getopt(sys.argv[1:], 'e')
+        opts, files = getopt.getopt(sys.argv[1:], 'e', ['version'])
         for opt, val in opts:
             if opt=='-e':
                 rename = 1
+            elif opt=='--version':
+                print '%s, version %s' % _cvs_says()
+                print 'Copyright (c) 2002--2006 Jörgen Grahn'
+                print 'All rights reserved.'
+                sys.exit(0)
         if not len(files):
             raise ValueError, 'arguments missing'
     except (ValueError, getopt.GetoptError), s:
