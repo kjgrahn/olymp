@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: iso-8859-1 -*-
 #
-# $Id: olymp,v 1.11 2006-02-05 17:14:12 grahn Exp $
+# $Id: olymp,v 1.12 2006-02-05 19:14:57 grahn Exp $
 #
 # Copyright (c) 2002--2006 Jörgen Grahn
 # All rights reserved.
@@ -9,15 +9,54 @@
 """enumerate and/or rename Olympus digital camera photos
 """
 import os
+import re
 
-def olymp(files, output, rename=0):
+_edatere = re.compile(r'(\d{4}:\d{2}:\d{2})\s(\d{2}:\d{2}):\d{2}')
+
+def exifdate(f):
+    """Find a date on the form '2005:10:23 20:04:17' in the EXIF
+    information of file 'f', and return it as a tuple on the form
+    ('2005-10-23', '20:04').
+
+    XXX Until I can find or write /good/ EXIF parsing code, this is
+    done the boneheaded way -- regexing straight into the first blocks
+    of the file.
+    """
+    f = open(f, 'rb')
+    s = f.read(3*512)
+    f.close()
+    m = _edatere.search(s)
+    if not m:
+        raise ValueError('no EXIF date in file')
+    date, time = m.groups()
+    return (date.replace(':', '-'),
+            time)
+
+def olymp(files, output, errput, rename=0):
     """Investigate 'files', a sequence of file names, and print a
     better name, and date/time stamp, to file-like object 'output'.
 
     If 'rename' is set, also try to rename them accordingly.
-
-    Whines to stderr if something goes wrong, and also returns false.
+    Whines to 'errput' if something goes wrong, and also returns false.
     """
+    olympre = re.compile(r'p[0-9abc]\d{2}(\d{4})\.jpg$')
+    otherre = re.compile(r'.+?_(\d+)(\..*)?$')
+    for f in files:
+        dir, fname = os.path.split(f)
+        m = olympre.match(fname)
+        if not m:
+            m = otherre.match(fname)
+        if not m:
+            print >>errput, "skipping", f, '- no serial number in the file name'
+            continue
+        serial = int(m.group(1))
+        try:
+            date, time = exifdate(f)
+            print >>output, '%s_%04d.jpg' % (date, serial)
+            print >>output, '%s %s' % (date, time)
+            print >>output, ''
+        except (ValueError, IOError), s:
+            print >>errput, '%s: %s' % (f, s)
 
 if __name__ == "__main__":
     import getopt
@@ -31,14 +70,14 @@ if __name__ == "__main__":
         for opt, val in opts:
             if opt=='-e':
                 rename = 1
-        if not len(files)==1:
+        if not len(files):
             raise ValueError, 'arguments missing'
     except (ValueError, getopt.GetoptError), s:
         print >>sys.stderr, 'error:', s
         print >>sys.stderr, usage
         sys.exit(1)
 
-    rc = olymp(sys.stdout, rename, files)
+    rc = olymp(files, sys.stdout, sys.stderr, rename)
     if not rc:
         sys.exit(1)
     sys.exit(0)
