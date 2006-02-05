@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: iso-8859-1 -*-
 #
-# $Id: olymp,v 1.12 2006-02-05 19:14:57 grahn Exp $
+# $Id: olymp,v 1.13 2006-02-05 19:54:19 grahn Exp $
 #
 # Copyright (c) 2002--2006 Jörgen Grahn
 # All rights reserved.
@@ -52,9 +52,16 @@ def olymp(files, output, errput, rename=0):
         serial = int(m.group(1))
         try:
             date, time = exifdate(f)
-            print >>output, '%s_%04d.jpg' % (date, serial)
+            newname = '%s_%04d.jpg' % (date, serial)
+            print >>output, newname
             print >>output, '%s %s' % (date, time)
             print >>output, ''
+            if rename and not fname==newname:
+                oldpath = f
+                newpath = os.path.join(dir, newname)
+                if os.path.exists(newpath):
+                    print >>errput, 'not renaming', f, '-', newpath, 'exists'
+                os.rename(oldpath, newpath)
         except (ValueError, IOError), s:
             print >>errput, '%s: %s' % (f, s)
 

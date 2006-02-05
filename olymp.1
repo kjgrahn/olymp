@@ -1,4 +1,4 @@
-.\" $Id: olymp.1,v 1.1 2006-02-02 19:53:59 grahn Exp $
+.\" $Id: olymp.1,v 1.2 2006-02-05 19:54:19 grahn Exp $
 .\" $Name:  $
 .\" 
 .\"
@@ -25,18 +25,18 @@ This translates to
 month 7,
 day 05,
 image serial number 0124\[rq].
+Stored inside the image, as
+.SM EXIF
+data, is the full date, along with the time of day.
 .LP
 This utility prints a more readable variation of the file name,
-along with the date and time.
+along with the date and time, based on the
+.SM EXIF
+information.
 Optionally, if the
 .B \-e
 option is given,
 the file is renamed in the same fashion.
-.LP
-The time stamp of the file is used for correlation, and for
-finding the time of day the photos were taken.
-The camera stores a correct (if you configure it correctly)
-time stamp; it is up to you to preserve it when copying the file.
 .LP
 The generated file names look like
 .BR 2005-07-06_0018.jpg .
@@ -44,22 +44,45 @@ This assures that they sort correctly in e.g. directory listing.
 .
 .SH "NOTES"
 .
-Earlier versions of this script generated file names on the form
-.BR 050706_18.jpg .
-These file names are accepted, just like the original Olympus file names
-(and the new file names for that matter).
-.LP
+.IP \- 3n
+Actually,
+.B olymp
+should work with any digital camera, as long as the file names it creates
+contain a four-digit image serial number.
+Haven't tried it, though.
+.
+.IP \-
+Renaming (with the
+.B \-e
+option) is always safe.
+Existing files are never overwritten, and files which are already
+correctly named aren't touched at all.
+.
+.IP \-
+.B olymp
+does not use the time stamp of the file.
+Nor does it use the current file name, except for the image serial number
+(which apparently only exists in the file name, not in the
+.SM EXIF
+data).
+.
+.IP \-
 All this assumes you
 .I do
-have a correctly set camera system clock,
-and have retained the original time stamp on the file.
+have a correctly set internal clock in your camera.
+Without it,
+.B olymp
+cannot do anything useful to the images.
 .
 .SH "BUGS"
 .
-Should
-.I really
-use the EXIF information inside the image
-(still in combination with the file name).
+The way dates are read in the image file's
+.SM EXIF
+information is not very elegant.
+.B olymp
+may fail to find certain dates,
+or may pick e.g. the last-edited date instead of
+the date the picture was taken.
 .
 .SH "AUTHOR"
 J\(:orgen Grahn \fI<grahn+src@snipabacken.dyndns.org>
