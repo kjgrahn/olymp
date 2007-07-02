@@ -1,4 +1,11 @@
 
+olymp 2.1 (2007-07-02):
+
+  - Accept uppercase file names (e.g. P6250013.JPG, not only
+    p6250013.jpg).  Files which have passed via a Windows machine may
+    have been uppercased.  Hell, maybe you /run/ olymp on a Windows
+    machine -- there is nothing Unix-specific about it.
+
 olymp 2.0 (2006-02-05):
   - First public release.
   - Completely rewritten (in Python). Now uses the EXIF information
@@ -6,5 +13,5 @@ olymp 2.0 (2006-02-05):
     image serial number still comes from the file name.
 
 _________________________________________
-$Id: NEWS,v 1.1 2006-02-05 20:00:08 grahn Exp $
+$Id: NEWS,v 1.2 2007-07-02 15:41:37 grahn Exp $
 $Name:  $
