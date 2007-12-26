@@ -1,4 +1,7 @@
 
+olymp 2.2 (2007-12-26):
+ - Tolerate DSCnnnnnn.JPG names too. At least Sony cameras produce those.
+
 olymp 2.1 (2007-07-02):
 
   - Accept uppercase file names (e.g. P6250013.JPG, not only
@@ -13,5 +16,5 @@ olymp 2.0 (2006-02-05):
     image serial number still comes from the file name.
 
 _________________________________________
-$Id: NEWS,v 1.2 2007-07-02 15:41:37 grahn Exp $
+$Id: NEWS,v 1.3 2007-12-26 15:02:50 grahn Exp $
 $Name:  $
