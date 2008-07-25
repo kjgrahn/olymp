@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: iso-8859-1 -*-
 #
-# $Id: olymp,v 1.18 2007-12-26 15:02:50 grahn Exp $
+# $Id: olymp,v 1.19 2008-07-25 17:40:25 grahn Exp $
 # $Name:  $
 #
 # Copyright (c) 2002--2007 Jörgen Grahn
@@ -46,7 +46,7 @@ def olymp(files, output, errput, rename=0):
     Whines to 'errput' if something goes wrong, and also returns false.
     """
     olympre = re.compile(r'p[0-9abc]\d{2}(\d{4})\.jpg$', re.IGNORECASE)
-    otherre = re.compile(r'(?:.+?_|DSC)(\d+)(\..*)?$')
+    otherre = re.compile(r'(?:.+?_|DSC)(\d+)(\..*)?$', re.IGNORECASE)
     for f in files:
         dir, fname = os.path.split(f)
         m = olympre.match(fname)
