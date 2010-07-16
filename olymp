@@ -1,10 +1,10 @@
 #!/usr/bin/python
 # -*- coding: iso-8859-1 -*-
 #
-# $Id: olymp,v 1.21 2010-07-11 21:43:27 grahn Exp $
+# $Id: olymp,v 1.22 2010-07-16 21:25:14 grahn Exp $
 # $Name:  $
 #
-# Copyright (c) 2002--2008 Jörgen Grahn
+# Copyright (c) 2002--2010 Jörgen Grahn
 # All rights reserved.
 #
 """enumerate and/or rename Olympus digital camera photos
@@ -86,7 +86,7 @@ if __name__ == "__main__":
                 rename = 1
             elif opt=='--version':
                 print '%s, version %s' % _cvs_says()
-                print 'Copyright (c) 2002--2008 Jörgen Grahn'
+                print 'Copyright (c) 2002--2010 Jörgen Grahn'
                 print 'All rights reserved.'
                 sys.exit(0)
         if not len(files):
