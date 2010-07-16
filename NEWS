@@ -1,5 +1,5 @@
 
-olymp 2.4 (2010-07-11):
+olymp 2.4 (2010-07-16):
  - And tolerate DSCN instead of DSC. Camera makers are morons.
 
 olymp 2.3 (2008-07-25):
@@ -22,5 +22,5 @@ olymp 2.0 (2006-02-05):
     image serial number still comes from the file name.
 
 _________________________________________
-$Id: NEWS,v 1.5 2010-07-11 21:43:27 grahn Exp $
+$Id: NEWS,v 1.6 2010-07-16 21:32:50 grahn Exp $
 $Name:  $
