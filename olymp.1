@@ -4,7 +4,7 @@
 .\"
 .ss 12 0
 .
-.TH olymp 1 "JUL 2010" "Olymp" "User Manuals"
+.TH olymp 1 "DEC 2012" "Olymp" "User Manuals"
 .
 .SH "NAME"
 olymp \- enumerate and/or rename digital camera photos
@@ -20,7 +20,7 @@ olymp \- enumerate and/or rename digital camera photos
 .
 .SH "DESCRIPTION"
 .
-Olympus cameras (at least the Camedia C-7x0 UZ series)
+Digital cameras
 store images in files with pretty silly names, like
 .BR P7050124.JPG .
 This translates to
@@ -48,20 +48,27 @@ and guarantee their uniqueness (at least if you only use one camera on
 any particular day).
 .
 .PP
-Other digital cameras use some kind of fixed prefix,
-followed by an image serial number.
+.BR P7050124.JPG
+is an Olympus convention.
+Other digital cameras use some kind of fixed prefix, followed by an image serial number.
+For example,
+.BR DSC0124.JPG .
 The only useful part of the file name is this serial number \- which
 seems to exist only here, not in the EXIF information.
-Thus this utility correctly handles the following naming conventions:
+.PP
+Thus this utility correctly handles the following naming conventions,
+in upper- or lowercase:
 .
 .IP "\fBP\fImddserial\fP.JPG" 25x
-Olympus
+Olympus (at least the Camedia C-7x0 UZ series)
 .IP "\fBDSC\fIserial\fP.JPG"
 Various camera makers.
 .IP "\fBDSCN\fIserial\fP.JPG"
 At least Nikon (is the
 .B N
 for Nikon, perhaps?)
+.IP "\fBIMAG\fIserial\fP.JPG"
+At least some camera-equipped phones
 .IP "\fIyyyy-mm-dd_serial\fB.JPG"
 its own format
 .
