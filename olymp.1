@@ -100,9 +100,14 @@ The way dates are read in the image file's
 .SM EXIF
 information is not very elegant.
 .B olymp
-may fail to find certain dates,
+simply searches the first few kilobytes of the file after text
+resembling a date, and gives up if it cannot find one.
+.PP
+.B olymp
+may thus fail to find certain dates,
 or may pick e.g. the last-edited date instead of
 the date the picture was taken.
+These dates, however, very rarely differ.
 .
 .SH "AUTHOR"
 J\(:orgen Grahn \[fo]grahn+src@snipabacken.se\[fc]

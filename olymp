@@ -26,7 +26,7 @@ def exifdate(f):
     of the file.
     """
     f = open(f, 'rb')
-    s = f.read(3*512)
+    s = f.read(4*1024)
     f.close()
     m = _edatere.search(s)
     if not m:
