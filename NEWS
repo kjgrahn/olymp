@@ -1,4 +1,9 @@
 
+olymp 2.6 (2014-09-21):
+ - Bug fix: unlike what the documentation (and the error message)
+   says, files got renamed even if that would overwrite an existing
+   file.
+
 olymp 2.5 (2012-12-02):
  - Search 4 kB of the file for a date, not just 1.5 kB.
    Some real-life image files need that much.
