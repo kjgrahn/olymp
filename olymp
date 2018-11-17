@@ -56,9 +56,9 @@ def olymp(files, output, errput, rename=0):
         try:
             date, time = exifdate(f)
             newname = '%s_%04d.jpg' % (date, serial)
+            print >>output, ''
             print >>output, newname
             print >>output, '%s %s' % (date, time)
-            print >>output, ''
             if rename and not fname==newname:
                 oldpath = f
                 newpath = os.path.join(dir, newname)
