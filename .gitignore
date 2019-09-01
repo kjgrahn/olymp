@@ -1,4 +1,6 @@
 *.o
 lib*.a
 dep/
+test/test
+test/test.cc
 TAGS
