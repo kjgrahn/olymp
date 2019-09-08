@@ -1,3 +1,4 @@
+seg
 *.o
 lib*.a
 dep/
