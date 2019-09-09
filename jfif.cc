@@ -99,7 +99,7 @@ void Decoder::feed(const uint8_t *a, const uint8_t *b)
 
 std::vector<Segment>& Decoder::end()
 {
-    if (acc.building()) throw Trailer{};
+    if (acc.building() && !acc.blackhole) throw Trailer{};
     if (!remainder.empty()) throw Trailer{};
     if (v.empty()) throw Trailer{};
     return v;
@@ -115,6 +115,7 @@ Accumulator::Accumulator(std::vector<Segment>& dst)
  */
 void Accumulator::emit(unsigned ch)
 {
+    blackhole = ch==0xd9;
     dst.emplace_back(ch, std::vector<uint8_t>{});
 }
 
@@ -151,6 +152,8 @@ const uint8_t* Accumulator::feed(const unsigned ch,
  */
 const uint8_t* Accumulator::feed(const uint8_t *a, const uint8_t * const b)
 {
+    if (blackhole) return b;
+
     auto c = std::min(a+missing, b);
     append(v, a, c);
     missing -= c - a;

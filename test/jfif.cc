@@ -41,9 +41,14 @@ namespace jfif {
 	    const auto a = v.data();
 	    const auto b = a + v.size();
 
-	    for(size_t n = v.size(); n; n--) {
-		const auto v = parse(a, b, n);
-		orchis::assert_(v == ref);
+	    try {
+		for(size_t n = v.size(); n; n--) {
+		    const auto v = parse(a, b, n);
+		    orchis::assert_(v == ref);
+		}
+	    }
+	    catch (const Decoder::Error&) {
+		throw orchis::Failure("Decoder::Error");
 	    }
 	}
 
@@ -104,6 +109,20 @@ namespace jfif {
 	    assert_parses(v,
 			  {{0xd8, h("")},
 			   {0xe0, h("69")}});
+	}
+
+	void trailing_eoi(orchis::TC)
+	{
+	    const auto v = h("ffd8"
+			     "ffe0 0003 69"
+			     "ffd9"
+			     "ffe0 0042 69"
+			     "ffd9");
+
+	    assert_parses(v,
+			  {{0xd8, h("")},
+			   {0xe0, h("69")},
+			   {0xd9, h("")}});
 	}
     }
 

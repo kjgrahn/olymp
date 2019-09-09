@@ -43,21 +43,22 @@ namespace jfif {
     }
 
     /**
-     * Helper for growing segments incrementally.
+     * Helper for growing segments incrementally -- and also for
+     * blackholing everything after the EOI marker.
      */
     struct Accumulator {
 	explicit Accumulator(std::vector<Segment>& dst);
 	Accumulator(const Accumulator&) = delete;
 	Accumulator& operator= (const Accumulator&) = delete;
 
-	bool building() const { return missing; }
+	bool building() const { return blackhole || missing; }
 
 	void emit(unsigned ch);
 	const uint8_t* feed(unsigned ch, const uint8_t *a, const uint8_t *b);
 	const uint8_t* feed(const uint8_t *a, const uint8_t *b);
 
-    private:
 	uint8_t marker;
+	bool blackhole = false;
 	unsigned missing = 0;
 	std::vector<uint8_t> v;
 	std::vector<Segment>& dst;
@@ -66,8 +67,12 @@ namespace jfif {
     /**
      * JFIF (JPEG) decoder, for extracting the segments (SOI, APP0,
      * APP1 etc). It doesn't interpret the segment contents, and
-     * discards the entropy-encoded data.  Also doesn't care what
-     * segments are present.
+     * discards the entropy-encoded data.
+     *
+     * Also doesn't care what segments are present -- except after the
+     * first EOI, everything is discarded.  Don't know what the
+     * standard says, but I have seen cameras produce files with
+     * fragments of segments after EOI.
      */
     class Decoder {
     public:
