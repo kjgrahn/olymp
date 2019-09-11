@@ -11,6 +11,7 @@ seg: seg.o libolymp.a
 	$(CXX) $(CXXFLAGS) -o $@ seg.o -L. -lolymp
 
 libolymp.a: jfif.o
+libolymp.a: tiff/tiff.o
 	$(AR) -r $@ $^
 
 CFLAGS=-Wextra -Wall -pedantic -std=c99 -g -Os
@@ -23,7 +24,9 @@ checkv: test/test
 	valgrind -q ./test/test -v
 
 test/libtest.a: test/hexread.o
+test/libtest.a: test/endian.o
 test/libtest.a: test/jfif.o
+test/libtest.a: test/tiff.o
 	$(AR) -r $@ $^
 
 test/%.o: CPPFLAGS+=-I.
@@ -47,14 +50,14 @@ TAGS:
 .PHONY: clean
 clean:
 	$(RM) seg
-	$(RM) *.o lib*.a
+	$(RM) *.o tiff/*.o lib*.a
 	$(RM) test/test test/test.cc test/*.o test/lib*.a
 	$(RM) -r dep
 
 love:
 	@echo "not war?"
 
-$(shell mkdir -p dep/test)
+$(shell mkdir -p dep/{test,tiff})
 DEPFLAGS=-MT $@ -MMD -MP -MF dep/$*.Td
 COMPILE.cc=$(CXX) $(DEPFLAGS) $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
 COMPILE.c=$(CC) $(DEPFLAGS) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
@@ -68,6 +71,8 @@ COMPILE.c=$(CC) $(DEPFLAGS) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c
 	@mv dep/$*.{Td,d}
 
 dep/%.d: ;
+dep/tiff/%.d: ;
 dep/test/%.d: ;
 -include dep/*.d
+-include dep/tiff/*.d
 -include dep/test/*.d
