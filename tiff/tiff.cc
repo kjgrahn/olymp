@@ -5,6 +5,7 @@
  */
 #include "tiff.h"
 #include "error.h"
+#include "endian.h"
 
 #include <algorithm>
 
@@ -23,73 +24,66 @@ namespace {
 	return it==begin(haystack);
     }
 
+    bool equal(const Range&, const std::vector<uint8_t>&);
+
     /**
      * What should be TIFF of an APP1 segment: the stuff after an Exif
      * marker.  Throws if there's no Exif marker or no valid TIFF
      * header.
      */
-    Blob tiff_of(const std::vector<uint8_t>& app1)
+    Range tiff_of(const std::vector<uint8_t>& app1)
     {
-	if(!starts(app1, {'E','x','i','f',0,0})) throw Error {};
-	Blob b {begin(app1) + 6, end(app1)};
-	if (b.size() < 2 + 1 + 4 + (2 + 12 + 4)) throw Segfault {};
-	if(b[0] != b[1]) throw Error {};
-	auto endian = b[0];
-	if (endian != 'I' && endian != 'M') throw Error {};
-	if (b[3] != 42) throw Error {};
-	return b;
+	const Range app {app1};
+	const Range exif {app, 0, 6};
+	if (!equal(exif, {'E','x','i','f',0,0})) throw Error {};
+
+	const Range tiff {app, exif};
+	const Range h {tiff, 0, 4};
+	if (!equal(h, {'I','I',42,0})) throw Error {};
+
+	Range {tiff, h, 4};
+	return tiff;
     }
 
     /**
      * True if the TIFF header (of a blob known to contain one)
      * says it's big-endian.
      */
-    bool is_bigendian(const Blob& tiff)
+    bool is_bigendian(const Range& tiff)
     {
-	return tiff[0]=='M';
+	const Range endianness {tiff, 0, 2};
+	return equal(endianness, {'M','M'});
+    }
+
+    /**
+     * The IFD at a certain offset in the TIFF file 'tiff'. What's
+     * returned is the 12-octet IFD entries, excluding the field count
+     * and the final next IFD offset.
+     */
+    Range ifd_of(const Range& tiff, unsigned offset)
+    {
+	const Range count {tiff, offset, 2};
+	auto it = std::begin(count);
+	unsigned n = le::eat16(it);
+	return {tiff, count, n*12};
+    }
+
+    /**
+     * The first IFD in the TIFF file 'tiff', which is large enough to
+     * contain the initial IFD offset.
+     */
+    Range ifd_of(const Range& tiff)
+    {
+	auto it = std::begin(tiff);
+	it += 4;
+	unsigned offset = le::eat32(it);
+	return ifd_of(tiff, offset);
     }
 }
 
 File::File(const std::vector<uint8_t>& app1)
-    : content {tiff_of(app1)},
-      bigendian {is_bigendian(content)}
+    : tiff {tiff_of(app1)},
+      bigendian {is_bigendian(tiff)},
+      ifd {ifd_of(tiff)}
 {
-}
-
-namespace {
-
-    struct Field {
-	explicit Field(const uint8_t* p);
-	Field(unsigned tag, unsigned type, unsigned val);
-
-	bool operator== (const Field& other) const;
-	std::size_t valsize() const;
-
-	const unsigned tag;
-	const unsigned type;
-	const unsigned count;
-    };
-}
-
-Blob Ifd::find(unsigned tag, unsigned type, unsigned count) const
-{
-    const Field f {tag, type, count};
-
-    auto a = begin();
-    const auto b = end();
-    while (a!=b) {
-	const Field g {a};
-	if (g==f) {
-	    a += 2 + 2 + 4;
-	    if (g.valsize() > 4) {
-		Offset offset {a};
-		return {offset, g.valsize()};
-	    }
-	    else {
-		return {a, a + g.valsize()};
-	    }
-	}
-	a += 12;
-    }
-    return {};
 }

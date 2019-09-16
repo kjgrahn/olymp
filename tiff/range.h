@@ -8,6 +8,7 @@
 #define OLYMP_TIFF_RANGE_H
 
 #include <cstdint>
+#include <vector>
 
 #include "error.h"
 
@@ -25,6 +26,8 @@ namespace tiff {
     class Range {
     public:
 	using iterator = const uint8_t*;
+
+	explicit Range(const std::vector<uint8_t>&);
 
 	/**
 	 * The range [a..b).
@@ -51,6 +54,8 @@ namespace tiff {
 	    : Range(whole, pred.b - whole.a, len)
 	{}
 
+	Range(const Range& whole, const Range& pred);
+
 	iterator begin() const { return a; }
 	iterator end() const { return b; }
 	explicit operator bool() const { return a!=b; }
@@ -59,6 +64,9 @@ namespace tiff {
 	const iterator a;
 	const iterator b;
     };
+
+    inline bool operator== (const Range&, const std::vector<uint8_t>&);
+    inline bool operator!= (const Range&, const std::vector<uint8_t>&);
 }
     
 #endif

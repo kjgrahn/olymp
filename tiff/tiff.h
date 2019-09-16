@@ -7,6 +7,8 @@
 #ifndef OLYMP_TIFF_H
 #define OLYMP_TIFF_H
 
+#include "range.h"
+
 #include <cstdint>
 #include <vector>
 #include <array>
@@ -23,13 +25,6 @@ namespace tiff {
     };
 
     struct Blob {
-	template <class It>
-	Blob(It a, It b);
-	Blob(Offset, std::size_t);
-	Blob();
-
-	size_t size() const;
-	uint8_t operator[] (size_t n) const;
     };
 
     /**
@@ -94,8 +89,9 @@ namespace tiff {
 	std::unique_ptr<F> find(const Ifd& ifd) const;
 
     private:
-	const Blob content;
+	const Range tiff;
 	const bool bigendian;
+	const Range ifd;
     };
 
     template <class F>
