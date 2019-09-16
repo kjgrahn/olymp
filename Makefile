@@ -12,6 +12,7 @@ seg: seg.o libolymp.a
 
 libolymp.a: jfif.o
 libolymp.a: tiff/tiff.o
+libolymp.a: tiff/range.o
 	$(AR) -r $@ $^
 
 CFLAGS=-Wextra -Wall -pedantic -std=c99 -g -Os
