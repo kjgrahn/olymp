@@ -58,6 +58,7 @@ namespace tiff {
 
 	iterator begin() const { return a; }
 	iterator end() const { return b; }
+	std::size_t size() const { return b-a; }
 	explicit operator bool() const { return a!=b; }
 
     private:

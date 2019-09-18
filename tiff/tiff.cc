@@ -24,7 +24,10 @@ namespace {
 	return it==begin(haystack);
     }
 
-    bool equal(const Range&, const std::vector<uint8_t>&);
+    bool equal(const Range& r, const std::vector<uint8_t>& v)
+    {
+	return r.size()==v.size() && std::equal(r.begin(), r.end(), v.begin());
+    }
 
     /**
      * What should be TIFF of an APP1 segment: the stuff after an Exif
