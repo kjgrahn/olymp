@@ -27,6 +27,8 @@ namespace tiff {
     public:
 	using iterator = const uint8_t*;
 
+	Range() : a{}, b{} {}
+
 	explicit Range(const std::vector<uint8_t>&);
 
 	/**

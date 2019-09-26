@@ -87,6 +87,60 @@ namespace {
 File::File(const std::vector<uint8_t>& app1)
     : tiff {tiff_of(app1)},
       bigendian {is_bigendian(tiff)},
-      ifd {ifd_of(tiff)}
+      ifd0 {tiff, ifd_of(tiff)}
 {
+}
+
+namespace {
+
+    /**
+     * The octet size of a field of a certain type and count.
+     * Returns 0 for unknown types.
+     *
+     * Calculations can overflow for malicious data, but I see no
+     * harm in that.
+     */
+    unsigned size(unsigned type, unsigned count)
+    {
+	switch (type) {
+	case  1:
+	case  2:
+	case  6:
+	case  7: return count;
+	case  3:
+	case  8: return 2*count;
+	case  4:
+	case  9:
+	case 11: return 4*count;
+	case  5:
+	case 10:
+	case 12: return 8*count;
+	}
+	return 0;
+    }
+}
+
+/**
+ * The value of the first 'tag' of type 'type', or else the empty
+ * range.
+ */
+Range Ifd::find(const unsigned tag, const unsigned type) const
+{
+    auto a = std::begin(ifd);
+    const auto b = std::end(ifd);
+    while (a!=b) {
+	if (le::eat16(a)!=tag)  { a += 10; continue; }
+	if (le::eat16(a)!=type) { a += 8; continue; }
+	const unsigned count = le::eat32(a);
+
+	unsigned n = size(type, count);
+	if (n>4) {
+	    const unsigned offset = le::eat32(a);
+	    return {tiff, offset, n};
+	}
+	else {
+	    return {a, a + n};
+	}
+    }
+    return {};
 }

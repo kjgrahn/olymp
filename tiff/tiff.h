@@ -19,10 +19,24 @@ namespace tiff {
     /**
      * A TIFF IFD appearing at a certain offset in a File.  An IFD is
      * a sequence of 1..255 fields and a next IFD offset.
+     *
+     * One Range contains the N 12-octet fields of the IFD (but not
+     * the count and next IFD offset); another contains the whole
+     * File.
      */
     class Ifd {
     public:
 	Ifd() = default;
+	Ifd(const Range& tiff, const Range& ifd)
+	    : tiff{tiff},
+	      ifd{ifd}
+	{}
+
+	Range find(unsigned tag, unsigned type) const;
+
+    private:
+	Range tiff;
+	Range ifd;
     };
 
     /**
@@ -35,13 +49,15 @@ namespace tiff {
     class File {
     public:
 	explicit File(const std::vector<uint8_t>& app1);
-	Ifd ifd0;
-	Ifd exif;
-	Ifd gps;
 
     private:
 	const Range tiff;
 	const bool bigendian;
+
+    public:
+	Ifd ifd0;
+	Ifd exif;
+	Ifd gps;
     };
 }
 
