@@ -49,7 +49,7 @@ namespace tiff {
 		"32 30 31 39 3a 30 39 3a 31 32 20 32 32 3a 33 30 3a 30 30 00");
 	}
 
-	void bigendian(orchis::TC)
+	void bigendian()
 	{
 	    File f {data::bigendian};
 	}
