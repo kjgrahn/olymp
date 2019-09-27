@@ -8,6 +8,7 @@
 #define OLYMP_TIFF_H
 
 #include "range.h"
+#include "type.h"
 
 #include <cstdint>
 #include <vector>

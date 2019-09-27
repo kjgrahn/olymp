@@ -103,18 +103,18 @@ namespace {
     unsigned size(unsigned type, unsigned count)
     {
 	switch (type) {
-	case  1:
-	case  2:
-	case  6:
-	case  7: return count;
-	case  3:
-	case  8: return 2*count;
-	case  4:
-	case  9:
-	case 11: return 4*count;
-	case  5:
-	case 10:
-	case 12: return 8*count;
+	case Byte::type:      return Byte::size * count;
+	case Ascii::type:     return Ascii::size * count;
+	case Short::type:     return Short::size * count;
+	case Long::type:      return Long::size * count;
+	case Rational::type:  return Rational::size * count;
+	case Sbyte::type:     return Sbyte::size * count;
+	case Undefined::type: return Undefined::size * count;
+	case Sshort::type:    return Sshort::size * count;
+	case Slong::type:     return Slong::size * count;
+	case Srational::type: return Srational::size * count;
+	case Float::type:     return Float::size * count;
+	case Double::type:    return Double::size * count;
 	}
 	return 0;
     }
