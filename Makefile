@@ -13,6 +13,7 @@ seg: seg.o libolymp.a
 libolymp.a: jfif.o
 libolymp.a: tiff/tiff.o
 libolymp.a: tiff/range.o
+libolymp.a: filename.o
 	$(AR) -r $@ $^
 
 CFLAGS=-Wextra -Wall -pedantic -std=c99 -g -Os
@@ -28,6 +29,7 @@ test/libtest.a: test/hexread.o
 test/libtest.a: test/endian.o
 test/libtest.a: test/jfif.o
 test/libtest.a: test/tiff.o
+test/libtest.a: test/filename.o
 	$(AR) -r $@ $^
 
 test/%.o: CPPFLAGS+=-I.

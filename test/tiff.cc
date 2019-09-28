@@ -4,8 +4,10 @@
 
 #include <tiff/tiff.h>
 
-
 namespace {
+
+    using orchis::assert_eq;
+    using orchis::assert_false;
 
     std::vector<uint8_t> h(const std::string& s)
     {
@@ -13,7 +15,7 @@ namespace {
 	const char* a = s.data();
 	auto b = s.data() + s.size();
 	auto n = hexread(v.data(), &a, b);
-	orchis::assert_eq(a, b);
+	assert_eq(a, b);
 	v.resize(n);
 	return v;
     }
@@ -58,14 +60,14 @@ namespace tiff {
 	{
 	    File f {data::lendian};
 
-	    orchis::assert_false(f.ifd0.empty());
+	    assert_false(f.ifd0.empty());
 	    auto exif = f.ifd0.find<Long>(0x8769);
-	    orchis::assert_eq(exif.size(), 1);
-	    orchis::assert_eq(exif[0], 0x1a);
+	    assert_eq(exif.size(), 1);
+	    assert_eq(exif[0], 0x1a);
 
-	    orchis::assert_false(f.exif.empty());
+	    assert_false(f.exif.empty());
 	    auto date = f.exif.find<Ascii>(0x9003);
-	    orchis::assert_eq(date, "2019:09:12 22:30:00");
+	    assert_eq(date, "2019:09:12 22:30:00");
 	}
     }
 }
