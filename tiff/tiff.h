@@ -9,10 +9,10 @@
 
 #include "range.h"
 #include "type.h"
+#include "endian.h"
 
 #include <cstdint>
 #include <vector>
-#include <array>
 #include <memory>
 
 namespace tiff {
@@ -33,12 +33,31 @@ namespace tiff {
 	      ifd{ifd}
 	{}
 
-	Range find(unsigned tag, unsigned type) const;
+	bool empty() const { return ifd.size()==0; }
+
+	template <class T>
+	std::vector<typename T::value_type> find(unsigned tag) const;
 
     private:
 	Range tiff;
 	Range ifd;
+
+	Range find(unsigned tag, unsigned type) const;
     };
+
+    template <class T>
+    std::vector<typename T::value_type> Ifd::find(unsigned tag) const
+    {
+	const Range r = find(tag, T::type);
+	std::vector<typename T::value_type> v;
+	auto a = r.begin();
+	const auto b = r.end();
+	while (a!=b) {
+	    v.push_back(le::eat32(a));
+	}
+	return v;
+    }
+
 
     /**
      * A TIFF file according to TIFF revision 6.0 (Adobe 1992).

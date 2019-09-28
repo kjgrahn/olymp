@@ -57,8 +57,11 @@ namespace tiff {
 	void lendian(orchis::TC)
 	{
 	    File f {data::lendian};
-	    auto r = f.ifd0.find(0x8769, 4);
-	    orchis::assert_gt(r.size(), 0);
+
+	    orchis::assert_false(f.ifd0.empty());
+	    auto exif = f.ifd0.find<Long>(0x8769);
+	    orchis::assert_eq(exif.size(), 1);
+	    orchis::assert_eq(exif[0], 0x1a);
 	}
     }
 }
