@@ -14,6 +14,7 @@
 #include <cstdint>
 #include <vector>
 #include <memory>
+#include <algorithm>
 
 namespace tiff {
 
@@ -36,7 +37,7 @@ namespace tiff {
 	bool empty() const { return ifd.size()==0; }
 
 	template <class T>
-	std::vector<typename T::value_type> find(unsigned tag) const;
+	typename T::array_type find(unsigned tag) const;
 
     private:
 	Range tiff;
@@ -45,17 +46,30 @@ namespace tiff {
 	Range find(unsigned tag, unsigned type) const;
     };
 
+    /**
+     * Find the first field with a certain tag and of a certain
+     * tiff::Type.  Typically returns a vector: e.g. for a tiff::Long
+     * field, it returns std::vector<unsigned>.
+     */
     template <class T>
-    std::vector<typename T::value_type> Ifd::find(unsigned tag) const
+    typename T::array_type Ifd::find(unsigned tag) const
     {
 	const Range r = find(tag, T::type);
-	std::vector<typename T::value_type> v;
+	typename T::array_type v;
 	auto a = r.begin();
 	const auto b = r.end();
 	while (a!=b) {
 	    v.push_back(le::eat32(a));
 	}
 	return v;
+    }
+
+    template <> inline
+    Ascii::array_type Ifd::find<Ascii>(unsigned tag) const
+    {
+	const Range r = find(tag, Ascii::type);
+	auto e = std::find(r.begin(), r.end(), '\0');
+	return {r.begin(), e};
     }
 
 

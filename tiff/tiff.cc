@@ -82,14 +82,27 @@ namespace {
 	unsigned offset = le::eat32(it);
 	return ifd_of(tiff, offset);
     }
+
+    /**
+     * The IFD at the offset pointed out by a tiff::Long in 'ifd'.
+     * This is how you find the Exif and GPS IFDs.
+     */
+    Range ifd_of(const Range& tiff, const Ifd& ifd, const unsigned tag)
+    {
+	const auto f = ifd.find<Long>(tag);
+	if (f.size()!=1) return {};
+	const unsigned offset = f[0];
+	return ifd_of(tiff, offset);
+    }
 }
 
 File::File(const std::vector<uint8_t>& app1)
     : tiff {tiff_of(app1)},
       bigendian {is_bigendian(tiff)},
-      ifd0 {tiff, ifd_of(tiff)}
-{
-}
+      ifd0 {tiff, ifd_of(tiff)},
+      exif {tiff, ifd_of(tiff, ifd0, 0x8769)},
+      gps  {tiff, ifd_of(tiff, ifd0, 0x8825)}
+{}
 
 namespace {
 

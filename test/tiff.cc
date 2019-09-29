@@ -62,6 +62,10 @@ namespace tiff {
 	    auto exif = f.ifd0.find<Long>(0x8769);
 	    orchis::assert_eq(exif.size(), 1);
 	    orchis::assert_eq(exif[0], 0x1a);
+
+	    orchis::assert_false(f.exif.empty());
+	    auto date = f.exif.find<Ascii>(0x9003);
+	    orchis::assert_eq(date, "2019:09:12 22:30:00");
 	}
     }
 }
