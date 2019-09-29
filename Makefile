@@ -3,12 +3,15 @@
 SHELL=/bin/bash
 INSTALLBASE = /usr/local
 
+all: olymp
 all: seg
-all: libolymp.a
 all: test/test
 
 seg: seg.o libolymp.a
 	$(CXX) $(CXXFLAGS) -o $@ seg.o -L. -lolymp
+
+olymp: olymp.o libolymp.a
+	$(CXX) $(CXXFLAGS) -o $@ olymp.o -L. -lolymp
 
 libolymp.a: jfif.o
 libolymp.a: tiff/tiff.o
@@ -52,7 +55,7 @@ TAGS:
 
 .PHONY: clean
 clean:
-	$(RM) seg
+	$(RM) olymp seg
 	$(RM) *.o tiff/*.o lib*.a
 	$(RM) test/test test/test.cc test/*.o test/lib*.a
 	$(RM) -r dep
