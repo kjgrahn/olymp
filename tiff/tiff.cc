@@ -89,7 +89,7 @@ namespace {
      */
     Range ifd_of(const Range& tiff, const Ifd& ifd, const unsigned tag)
     {
-	const auto f = ifd.find<Long>(tag);
+	const auto f = ifd.find<type::Long>(tag);
 	if (f.size()!=1) return {};
 	const unsigned offset = f[0];
 	return ifd_of(tiff, offset);
@@ -115,6 +115,8 @@ namespace {
      */
     unsigned size(unsigned type, unsigned count)
     {
+	using namespace tiff::type;
+
 	switch (type) {
 	case Byte::type:      return Byte::size * count;
 	case Ascii::type:     return Ascii::size * count;

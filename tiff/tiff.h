@@ -59,15 +59,15 @@ namespace tiff {
 	auto a = r.begin();
 	const auto b = r.end();
 	while (a!=b) {
-	    v.push_back(le::eat32(a));
+	    v.push_back(T(a).val);
 	}
 	return v;
     }
 
     template <> inline
-    Ascii::array_type Ifd::find<Ascii>(unsigned tag) const
+    type::Ascii::array_type Ifd::find<type::Ascii>(unsigned tag) const
     {
-	const Range r = find(tag, Ascii::type);
+	const Range r = find(tag, type::Ascii::type);
 	auto e = std::find(r.begin(), r.end(), '\0');
 	return {r.begin(), e};
     }
