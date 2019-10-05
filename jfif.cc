@@ -115,7 +115,7 @@ Accumulator::Accumulator(std::vector<Segment>& dst)
  */
 void Accumulator::emit(unsigned ch)
 {
-    blackhole = ch==0xd9;
+    blackhole = ch==marker::EOI;
     dst.emplace_back(ch, std::vector<uint8_t>{});
 }
 

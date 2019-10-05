@@ -13,6 +13,27 @@
 namespace jfif {
 
     /**
+     * Some selected JFIF segment markers.
+     */
+    namespace marker {
+	constexpr unsigned SOI  = 0xd8;
+	constexpr unsigned SOF0 = 0xc0;
+	constexpr unsigned SOF2 = 0xc2;
+	constexpr unsigned DHT 	= 0xc4;
+	constexpr unsigned DQT 	= 0xdb;
+	constexpr unsigned DRI 	= 0xdd;
+	constexpr unsigned SOS 	= 0xda;
+	constexpr unsigned APP0 = 0xe0;
+	constexpr unsigned APP1 = 0xe1;
+	constexpr unsigned APP2 = 0xe2;
+	constexpr unsigned APP3 = 0xe3;
+	constexpr unsigned APP4 = 0xe4;
+	constexpr unsigned APP5 = 0xe5;
+	constexpr unsigned COM = 0xfe;
+	constexpr unsigned EOI = 0xd9;
+    }
+
+    /**
      * The vital parts of a JFIF segment: the marker (minus the FF
      * part) and the data.  Standalone segments simply have empty
      * data.
