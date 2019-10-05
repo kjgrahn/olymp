@@ -9,22 +9,38 @@
 
 #include "tiff/tiff.h"
 
+#include <regex>
+
+
+/**
+ * Selected Exif attributes from Exif 2.3.
+ * See e.g. CIPA DC-008-2012.
+ */
 namespace exif {
 
-    class DateTimeOriginal {
-    public:
-	explicit DateTimeOriginal(const tiff::File&);
-	bool empty() const;
+    template <class T, unsigned Tag>
+    struct Field {
+	static constexpr unsigned tag = Tag;
+	using Type = T;
     };
 
-#if 0
-    typedef Ascii<0x9003, 20> DateTimeOriginal;
+    class DateTimeOriginal : public Field<tiff::type::Ascii, 0x9003> {
+    public:
+	explicit DateTimeOriginal(const tiff::File& tiff);
 
-    typedef Rational<0x829A>  ExposureTime;
-    typedef Rational<0x829D>  FNumber;
-    typedef Short   <0x8822>  ExposureProgram;
-    typedef Long    <0x8833>  ISOSpeed;
-#endif
+	std::string date() const;
+	std::string hhmm() const;
+	bool valid() const;
+
+    private:
+	std::string s;
+	std::smatch match;
+    };
+
+    typedef Field<tiff::type::Rational, 0x829A> ExposureTime;
+    typedef Field<tiff::type::Rational, 0x829D> FNumber;
+    typedef Field<tiff::type::Short,    0x8822> ExposureProgram;
+    typedef Field<tiff::type::Long,     0x8833> ISOSpeed;
 }
 
 #endif

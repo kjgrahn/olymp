@@ -107,8 +107,8 @@ namespace {
 	    const tiff::File tiff {app1.v};
 
 	    const exif::DateTimeOriginal ts {tiff};
-	    if (ts.empty()) {
-		err << file << ": error: no timestamp in EXIF data\n";
+	    if (!ts.valid()) {
+		err << file << ": error: no valid timestamp in EXIF data\n";
 	    }
 	    else {
 		render(out, ts, nnnn);
