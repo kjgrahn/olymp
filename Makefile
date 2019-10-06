@@ -32,6 +32,7 @@ test/libtest.a: test/hexread.o
 test/libtest.a: test/endian.o
 test/libtest.a: test/jfif.o
 test/libtest.a: test/tiff.o
+test/libtest.a: test/exif.o
 test/libtest.a: test/filename.o
 	$(AR) -r $@ $^
 
