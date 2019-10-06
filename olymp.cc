@@ -46,6 +46,28 @@
 namespace {
 
     struct IOError {};
+
+    /**
+     * Minimal wrapper for the opened-for-reading fd used here.
+     */
+    class Fd {
+    public:
+	explicit Fd(const std::string& path)
+	    : fd {open(path.c_str(), O_RDONLY)}
+	{
+	    if (fd==-1) throw IOError {};
+	}
+	~Fd() { close(fd); }
+
+	ssize_t read(void *buf, size_t count) const
+	{
+	    return ::read(fd, buf, count);
+	}
+
+    private:
+	const int fd;
+    };
+
     struct NoApp1 {};
 
     /**
