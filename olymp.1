@@ -4,7 +4,7 @@
 .\"
 .ss 12 0
 .
-.TH olymp 1 "DEC 2012" "Olymp" "User Manuals"
+.TH olymp 1 "OCT 2019" "Olymp" "User Manuals"
 .
 .SH "NAME"
 olymp \- enumerate and/or rename digital camera photos
@@ -14,6 +14,9 @@ olymp \- enumerate and/or rename digital camera photos
 .RB [ \-e ]
 .I file
 \&...
+.br
+.B olymp
+.B --help
 .br
 .B olymp
 .B --version
@@ -60,7 +63,7 @@ Thus this utility correctly handles the following naming conventions,
 in upper- or lowercase:
 .
 .IP "\fBP\fImddserial\fP.JPG" 25x
-Olympus (at least the Camedia C-7x0 UZ series)
+Olympus, Panasonic; others?
 .IP "\fBDSC\fIserial\fP.JPG"
 Various camera makers.
 .IP "\fBDSCN\fIserial\fP.JPG"
@@ -71,6 +74,9 @@ for Nikon, perhaps?)
 At least some camera-equipped phones
 .IP "\fIyyyy-mm-dd_serial\fB.JPG"
 its own format
+.
+.PP
+Some of these naming conventions are probably standardized.
 .
 .SH "NOTES"
 .
@@ -96,18 +102,10 @@ cannot do anything useful to the images.
 .
 .SH "BUGS"
 .
-The way dates are read in the image file's
-.SM EXIF
-information is not very elegant.
-.B olymp
-simply searches the first few kilobytes of the file after text
-resembling a date, and gives up if it cannot find one.
-.PP
-.B olymp
-may thus fail to find certain dates,
-or may pick e.g. the last-edited date instead of
-the date the picture was taken.
-These dates, however, very rarely differ.
+.B Olymp
+can currently only handle images where the Exif information is encoded as
+.I little-endian
+TIFF, not big-endian.  I've never encountered the latter variant.
 .
 .SH "AUTHOR"
 J\(:orgen Grahn \[fo]grahn+src@snipabacken.se\[fc]
