@@ -32,7 +32,8 @@ std::ostream& operator<< (std::ostream& os, const Serial& val)
     return val.put(os);
 }
 
-
 Serial serial(const std::string& path);
+
+std::string neighbour(const std::string& path, const std::string& filename);
 
 #endif

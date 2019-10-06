@@ -63,3 +63,19 @@ Serial serial(const std::string& path)
     const auto b = a + path.size();
     return Serial{ serial(a, b) };
 }
+
+/**
+ * Given that 'path' is the path of an existing file, form the path to
+ * 'filename' in the same directory.
+ */
+std::string neighbour(const std::string& path, const std::string& filename)
+{
+    auto a = begin(path);
+    auto b = end(path);
+    auto c = find_last(a, b, '/');
+    if (c==b) return filename;
+    c++;
+    std::string result {a, c};
+    result += filename;
+    return result;
+}

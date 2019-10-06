@@ -28,6 +28,7 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <sstream>
 #include <cstring>
 
 #include <getopt.h>
@@ -50,7 +51,7 @@ namespace {
     /**
      * The JFIF APP1 segment found in open file 'fd'. May throw.
      */
-    jfif::Segment app1_of(int fd)
+    jfif::Segment app1_of(const Fd& fd)
     {
 	jfif::Decoder decoder;
 	uint8_t buf[8*1024];
@@ -60,7 +61,7 @@ namespace {
 		       };
 
 	while (1) {
-	    auto res = read(fd, buf, sizeof buf);
+	    auto res = fd.read(buf, sizeof buf);
 	    if (res==-1) throw IOError {};
 	    if (res==0) break;
 
@@ -74,13 +75,48 @@ namespace {
 	throw NoApp1 {};
     }
 
-    void render(std::ostream& out,
-		const exif::DateTimeOriginal& ts,
-		const Serial& nnnn);
+    /**
+     * The JPG image file name formed by a certain date and serial
+     * number.
+     */
+    std::string filename(const exif::DateTimeOriginal& ts,
+			 const Serial& nnnn)
+    {
+	std::ostringstream oss;
+	oss << ts.date() << '_' << nnnn << ".jpg";
+	return oss.str();
+    }
 
-    void mv(const std::string& from,
-	    const exif::DateTimeOriginal& ts,
-	    const Serial& nnnn);
+    /**
+     * Render the output for one image.
+     */
+    void render(std::ostream& os,
+		const exif::DateTimeOriginal& ts,
+		const Serial& nnnn)
+    {
+	os << '\n'
+	   << filename(ts, nnnn) << '\n'
+	   << ts.date() << ' ' << ts.hhmm() << '\n';
+    }
+
+    /**
+     * A bit like 'mv -i'.
+     */
+    bool mv_i(const std::string& from,
+	      const exif::DateTimeOriginal& ts,
+	      const Serial& nnnn)
+    {
+	/* Use link(2) instead of rename(2) since it's important to
+	 * fail rather than destroy existing files.
+	 */
+	const auto to = neighbour(from, filename(ts, nnnn));
+	if (to==from) return true;
+	int err = link(from.c_str(), to.c_str());
+	if (err) return false;
+
+	err = unlink(from.c_str());
+	return !err;
+    }
 
     /**
      * Like olympv() but for a single file, and with a boolean result.
@@ -96,27 +132,26 @@ namespace {
 	    return false;
 	}
 
-	const int fd = open(file.c_str(), O_RDONLY);
-	if (fd==-1) {
-	    err << file << ": error: cannot open: " << std::strerror(errno) << '\n';
-	    return false;
-	}
-
 	try {
+	    const Fd fd {file};
 	    const auto app1 = app1_of(fd);
 	    const tiff::File tiff {app1.v};
 
 	    const exif::DateTimeOriginal ts {tiff};
 	    if (!ts.valid()) {
 		err << file << ": error: no valid timestamp in EXIF data\n";
+		return false;
 	    }
-	    else {
-		render(out, ts, nnnn);
 
-		if (rename) {
-		    mv(file, ts, nnnn);
-		}
+	    render(out, ts, nnnn);
+
+	    if (rename && !mv_i(file, ts, nnnn)) {
+		err << file << ": error, cannot rename: "
+		    << std::strerror(errno) << '\n';
+		return false;
 	    }
+
+	    return true;
 	}
 	catch (const jfif::Decoder::Error&) {
 	    err << file << ": error: cannot decode as JPEG\n";
@@ -131,7 +166,6 @@ namespace {
 	    err << file << ": error: corrupt EXIF data structure\n";
 	}
 
-	close(fd);
 	return false;
     }
 
