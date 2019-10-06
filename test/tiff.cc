@@ -10,16 +10,7 @@ namespace {
     using orchis::assert_true;
     using orchis::assert_false;
 
-    std::vector<uint8_t> h(const std::string& s)
-    {
-	std::vector<uint8_t> v(s.size()/2);
-	const char* a = s.data();
-	auto b = s.data() + s.size();
-	auto n = hexread(v.data(), &a, b);
-	assert_eq(a, b);
-	v.resize(n);
-	return v;
-    }
+    std::vector<uint8_t> h(const std::string& s) { return hexread(s); }
 }
 
 namespace tiff {
