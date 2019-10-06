@@ -148,9 +148,14 @@ namespace {
 	       std::ostream& err,
 	       const bool rename)
     {
+	auto errfile = [&file, &err] () -> std::ostream& {
+			   err << file << ": error: ";
+			   return err;
+		       };
+
 	const Serial nnnn = serial(file);
 	if (!nnnn.valid()) {
-	    err << file << ": error: no serial number in file name\n";
+	    errfile() << "no serial number in file name\n";
 	    return false;
 	}
 
@@ -161,31 +166,30 @@ namespace {
 
 	    const exif::DateTimeOriginal ts {tiff};
 	    if (!ts.valid()) {
-		err << file << ": error: no valid timestamp in EXIF data\n";
+		errfile() << "no valid timestamp in EXIF data\n";
 		return false;
 	    }
 
 	    render(out, ts, nnnn);
 
 	    if (rename && !mv_i(file, ts, nnnn)) {
-		err << file << ": error, cannot rename: "
-		    << std::strerror(errno) << '\n';
+		errfile() << "cannot rename: " << std::strerror(errno) << '\n';
 		return false;
 	    }
 
 	    return true;
 	}
 	catch (const jfif::Decoder::Error&) {
-	    err << file << ": error: cannot decode as JPEG\n";
+	    errfile() << "cannot decode as JPEG\n";
 	}
 	catch (const IOError&) {
-	    err << file << ": error: " << std::strerror(errno) << '\n';
+	    errfile() << std::strerror(errno) << '\n';
 	}
 	catch (const NoApp1&) {
-	    err << file << ": error: no EXIF data in file\n";
+	    errfile() << "no EXIF data in file\n";
 	}
 	catch (const tiff::Error&) {
-	    err << file << ": error: corrupt EXIF data structure\n";
+	    errfile() << "corrupt EXIF data structure\n";
 	}
 
 	return false;
