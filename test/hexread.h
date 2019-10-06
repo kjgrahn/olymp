@@ -1,21 +1,20 @@
-/*
- * Copyright (c) 2012 Jörgen Grahn.
+/* -*- c++ -*-
+ *
+ * Copyright (c) 2012, 2019 Jörgen Grahn.
  * All rights reserved.
  *
  */
-#ifndef UDPTOOLS_HEXREAD_H
-#define UDPTOOLS_HEXREAD_H
-#include <stdlib.h>
-#include <stdint.h>
+#ifndef OLYMP_HEXREAD_H
+#define OLYMP_HEXREAD_H
 
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <cstdlib>
+#include <cstdint>
+#include <vector>
+#include <string>
 
 size_t hexread(uint8_t* buf, const char** begin, const char* end);
 
-#ifdef __cplusplus
-}
-#endif
+std::vector<uint8_t> hexread(const char** begin, const char* end);
+std::vector<uint8_t> hexread(const std::string& s);
+
 #endif
