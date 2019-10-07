@@ -3,6 +3,23 @@
  * Copyright (c) 2019 Jörgen Grahn
  * All rights reserved.
  *
+ * The JFIF file format, as I understand it:
+ *
+ * - A file is a sequence of segments, with entropy-encoded data
+ *   inbetween.
+ * - A segment is a marker, followed by a 16-bit length and length-2
+ *   bytes of data.
+ * - A marker is [FF nn], where nn != 00.
+ * - A standalone marker (at least nn = D0--D9, nn = 01) is followed
+ *   by neither length nor data, but kind of forms a mini-segment.
+ * - There may be FF padding before the marker.
+ * - Entropy-encoded data contains no markers, only FF 00 sequences
+ *   (and the FF padding sequence at the end I guess, if you want to
+ *   look at it that way.
+ * - The image begins with a SOI standalone marker and ends with an
+ *   EOI marker.
+ *
+ * This comes mostly from the JFIF and JPEG Wikipedia articles.
  */
 #ifndef OLYMP_JFIF_H
 #define OLYMP_JFIF_H
