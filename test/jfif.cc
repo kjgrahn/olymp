@@ -130,6 +130,7 @@ namespace jfif {
 	    throw orchis::Failure{};
 	}
 
+	template <class E>
 	void assert_fail(const std::vector<uint8_t>& v)
 	{
 	    const auto a = v.data();
@@ -139,7 +140,7 @@ namespace jfif {
 		try {
 		    const auto v = parse(a, b, n);
 		}
-		catch (const Decoder::Error&) {
+		catch (const E&) {
 		    continue;
 		}
 		throw orchis::Failure{};
@@ -150,11 +151,11 @@ namespace jfif {
 	{
 	    auto v = h("ffd8"
 		       "ffe0 0001");
-	    assert_fail(v);
+	    assert_fail<Decoder::IllegalLength>(v);
 
 	    v = h("ffd8"
 		  "ffe0 0000");
-	    assert_fail(v);
+	    assert_fail<Decoder::IllegalLength>(v);
 	}
 
 	void start(orchis::TC)
@@ -162,7 +163,7 @@ namespace jfif {
 	    auto v = h("ff00 1234"
 		       "ffd8"
 		       "ffe0 0002");
-	    assert_fail(v);
+	    assert_fail<Decoder::FalseStart>(v);
 	}
 
 	namespace truncated {
@@ -172,7 +173,7 @@ namespace jfif {
 		const auto v = h("ffd8"
 				 "ffe0 0004 4711"
 				 "ffe0");
-		assert_fail(v);
+		assert_fail<Decoder::Trailer>(v);
 	    }
 
 	    void b(orchis::TC)
@@ -180,7 +181,7 @@ namespace jfif {
 		const auto v = h("ffd8"
 				 "ffe0 0004 4711"
 				 "ffe0 00");
-		assert_fail(v);
+		assert_fail<Decoder::Trailer>(v);
 	    }
 
 	    void c(orchis::TC)
@@ -188,7 +189,7 @@ namespace jfif {
 		const auto v = h("ffd8"
 				 "ffe0 0004 4711"
 				 "ffe0 0004");
-		assert_fail(v);
+		assert_fail<Decoder::Trailer>(v);
 	    }
 
 	    void d(orchis::TC)
@@ -196,7 +197,7 @@ namespace jfif {
 		const auto v = h("ffd8"
 				 "ffe0 0004 4711"
 				 "ffe0 0004 69");
-		assert_fail(v);
+		assert_fail<Decoder::Trailer>(v);
 	    }
 
 	    void e(orchis::TC)
@@ -204,7 +205,7 @@ namespace jfif {
 		const auto v = h("ffd8"
 				 "ffe0 0004 4711"
 				 "ffe0 0005 6970");
-		assert_fail(v);
+		assert_fail<Decoder::Trailer>(v);
 	    }
 	}
     }

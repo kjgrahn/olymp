@@ -120,6 +120,7 @@ namespace jfif {
 	class IllegalLength: public Error {};
 	class Trailer: public Error {};
 	class Empty: public Error {};
+	class FalseStart: public Error {};
 
 	void feed(const uint8_t *a, const uint8_t *b);
 	std::vector<Segment>& end();
