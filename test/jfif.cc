@@ -7,16 +7,7 @@
 
 namespace {
 
-    std::vector<uint8_t> h(const std::string& s)
-    {
-	std::vector<uint8_t> v(s.size()/2);
-	const char* a = s.data();
-	auto b = s.data() + s.size();
-	auto n = hexread(v.data(), &a, b);
-	orchis::assert_eq(a, b);
-	v.resize(n);
-	return v;
-    }
+    std::vector<uint8_t> h(const std::string& s) { return hexread(s); }
 }
 
 namespace jfif {
