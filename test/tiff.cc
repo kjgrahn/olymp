@@ -227,6 +227,22 @@ namespace tiff {
 		orchis::assert_true(*b5 == std::array<uint8_t, 5>{0xde, 0xad, 0xf0,
 								  0x0d, 0x69});
 	    }
+
+	    void one_long(orchis::TC)
+	    {
+		const File f {data};
+		// no such tag
+		assert_empty(find<Long>(f.ifd0, 0x100));
+		// wrong type (short)
+		assert_empty(find<Long>(f.ifd0, 0x201));
+		// wrong number of elements
+		assert_empty(find<Long>(f.ifd0, 0x301));
+		assert_empty(find<Long>(f.ifd0, 0x303));
+
+		auto L1 = find<Long>(f.ifd0, 0x302);
+		orchis::assert_true(L1.has_value());
+		orchis::assert_eq(*L1, 0xfecaadab);
+	    }
 	}
     }
 }

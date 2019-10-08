@@ -89,10 +89,9 @@ namespace {
      */
     Range ifd_of(const Range& tiff, const Ifd& ifd, const unsigned tag)
     {
-	const auto f = ifd.find<type::Long>(tag);
-	if (f.size()!=1) return {};
-	const unsigned offset = f[0];
-	return ifd_of(tiff, offset);
+	const auto offset = find<type::Long>(ifd, tag);
+	if (!offset) return {};
+	return ifd_of(tiff, *offset);
     }
 }
 

@@ -116,6 +116,23 @@ namespace tiff {
     }
 
     /**
+     * Like find<T, Count>(ifd, tag) but for Count = 1, i.e. when you
+     * expect a single value rather than an array.  This lets you
+     * avoid dealing with an optional array of size 1.
+     */
+    template <class T>
+    std::optional<typename T::value_type> find(const tiff::Ifd& ifd,
+					       unsigned tag)
+    {
+	std::optional<typename T::value_type> val;
+	const auto v = ifd.find<T>(tag);
+	if (v.size() == 1) {
+	    val = v[0];
+	}
+	return val;
+    }
+
+    /**
      * A TIFF file according to TIFF revision 6.0 (Adobe 1992).
      *
      * Here it's defined as the content of a JFIF APP1 segment, after
