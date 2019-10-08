@@ -197,5 +197,36 @@ namespace tiff {
 	    assert_true(f.ifd0.find<Undefined>(0x604) == v{0xde, 0xad, 0xf0,
 							   0x0d, 0x69});
 	}
+
+	namespace optional {
+
+	    template <class OT>
+	    void assert_empty(const OT& val)
+	    {
+		orchis::assert_false(val.has_value());
+	    }
+
+	    void byte_array(orchis::TC)
+	    {
+		const File f {data};
+		// no such tag
+		assert_empty(find<Byte, 1>(f.ifd0, 0x100));
+		// wrong type (short)
+		assert_empty(find<Byte, 1>(f.ifd0, 0x201));
+		// wrong number of elements
+		assert_empty(find<Byte, 1>(f.ifd0, 0x001));
+		assert_empty(find<Byte, 1>(f.ifd0, 0x003));
+		assert_empty(find<Byte, 1>(f.ifd0, 0x004));
+
+		auto b1 = find<Byte, 1>(f.ifd0, 0x002);
+		orchis::assert_true(b1.has_value());
+		orchis::assert_true(*b1 == std::array<uint8_t, 1>{1});
+
+		auto b5 = find<Byte, 5>(f.ifd0, 0x004);
+		orchis::assert_true(b5.has_value());
+		orchis::assert_true(*b5 == std::array<uint8_t, 5>{0xde, 0xad, 0xf0,
+								  0x0d, 0x69});
+	    }
+	}
     }
 }

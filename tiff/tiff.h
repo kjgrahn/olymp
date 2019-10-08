@@ -15,6 +15,8 @@
 #include <vector>
 #include <memory>
 #include <algorithm>
+#include <optional>
+#include <array>
 
 namespace tiff {
 
@@ -89,6 +91,28 @@ namespace tiff {
 	const Range r = find(tag, type::Ascii::type);
 	auto e = std::find(r.begin(), r.end(), '\0');
 	return {r.begin(), e};
+    }
+
+    /**
+     * Like Ifd::find<T>(tag) but with a fixed element count. Returns a
+     * std::optional<std::array<T>>.
+     *
+     * Most fields have a fixed size (e.g. an Exif LensSpecification
+     * is four RATIONALs) and it's more convenient to either get the
+     * value you expect, or nothing at all.
+     */
+    template <class T, std::size_t Count>
+    std::optional<std::array<typename T::value_type, Count>> find(const tiff::Ifd& ifd,
+								  unsigned tag)
+    {
+	std::optional<std::array<typename T::value_type, Count>> val;
+	const auto v = ifd.find<T>(tag);
+	if (v.size() == Count) {
+	    std::array<typename T::value_type, Count> arr;
+	    std::copy(begin(v), end(v), begin(arr));
+	    val = arr;
+	}
+	return val;
     }
 
     /**
