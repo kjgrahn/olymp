@@ -50,6 +50,17 @@ namespace tiff {
      * Find the first field with a certain tag and of a certain
      * tiff::Type.  Typically returns a vector: e.g. for a tiff::Long
      * field, it returns std::vector<unsigned>.
+     *
+     * Returns an empty vector if no matching field is found.  Thus
+     * you cannot distinguish between a kind-of valid field with count
+     * 0, the absence of that field, or the presence of the tag but
+     * with the wrong type.
+     *
+     * Will throw on malformed TIFF data, such as an offset pointing
+     * outside the file.
+     *
+     * Only some TIFF field types are supported for now: the ones I
+     * need and the ones that are easy.
      */
     template <class T>
     typename T::array_type Ifd::find(unsigned tag) const
@@ -64,6 +75,14 @@ namespace tiff {
 	return v;
     }
 
+    /**
+     * Like Ifd::find<T>(tag) in general, but returns a std::string.
+     *
+     * TIFF has some support for arrays of strings, but this function
+     * hasn't.  On the other hand, it supports skipping the \0
+     * terminator or having it appear early.  And it doesn't fail on
+     * non-ASCII text.
+     */
     template <> inline
     type::Ascii::array_type Ifd::find<type::Ascii>(unsigned tag) const
     {
@@ -72,13 +91,20 @@ namespace tiff {
 	return {r.begin(), e};
     }
 
-
     /**
      * A TIFF file according to TIFF revision 6.0 (Adobe 1992).
      *
      * Here it's defined as the content of a JFIF APP1 segment, after
      * the Exif marker.  And what we're interested in is TIFF fields
-     * in the Exif and GPS IFDs, which can be found via IFD 0.
+     * in the Exif and GPS IFDs, which can be found via IFD 0, if they
+     * exist.
+     *
+     * We don't look for any other IFDs.
+     *
+     * The constructor will throw on error, for example if it's not
+     * given an Exif APP1 segment, or if the TIFF file inside is
+     * malformed in any way. The vector needs to be present throughout
+     * the lifetime of the File; it is not copied.
      */
     class File {
     public:
