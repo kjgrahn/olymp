@@ -16,12 +16,11 @@ namespace tiff {
 
     /**
      * A const range [a..b) of octets, iterating over them, and
-     * functions for reading 8-bit, 16-bit and 32-bit off it using the
-     * range's endianness. Used to parse IFDs, TIFF field values and
-     * so on.
+     * functions for picking out subranges.  Used to parse IFDs, TIFF
+     * field values and so on.
      *
      * The constructors which takes a 'whole' Range parameter throw
-     * if the new range isn't a subset.
+     * tiff::Segfault if the new range isn't a subset.
      */
     class Range {
     public:
@@ -61,15 +60,11 @@ namespace tiff {
 	iterator begin() const { return a; }
 	iterator end() const { return b; }
 	std::size_t size() const { return b-a; }
-	explicit operator bool() const { return a!=b; }
 
     private:
 	const iterator a;
 	const iterator b;
     };
-
-    inline bool operator== (const Range&, const std::vector<uint8_t>&);
-    inline bool operator!= (const Range&, const std::vector<uint8_t>&);
 }
     
 #endif
