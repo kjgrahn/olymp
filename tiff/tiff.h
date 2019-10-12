@@ -15,7 +15,7 @@
 #include <vector>
 #include <memory>
 #include <algorithm>
-#include <optional>
+#include "optional.h"
 #include <array>
 
 namespace tiff {
@@ -94,18 +94,18 @@ namespace tiff {
     }
 
     /**
-     * Like Ifd::find<T>(tag) but with a fixed element count. Returns a
-     * std::optional<std::array<T>>.
+     * Like Ifd::find<T>(tag) but with a fixed element count. Returns an
+     * optional<std::array<T>>.
      *
      * Most fields have a fixed size (e.g. an Exif LensSpecification
      * is four RATIONALs) and it's more convenient to either get the
      * value you expect, or nothing at all.
      */
     template <class T, std::size_t Count>
-    std::optional<std::array<typename T::value_type, Count>> find(const tiff::Ifd& ifd,
-								  unsigned tag)
+    optional<std::array<typename T::value_type, Count>> find(const tiff::Ifd& ifd,
+							     unsigned tag)
     {
-	std::optional<std::array<typename T::value_type, Count>> val;
+	optional<std::array<typename T::value_type, Count>> val;
 	const auto v = ifd.find<T>(tag);
 	if (v.size() == Count) {
 	    std::array<typename T::value_type, Count> arr;
@@ -121,10 +121,10 @@ namespace tiff {
      * avoid dealing with an optional array of size 1.
      */
     template <class T>
-    std::optional<typename T::value_type> find(const tiff::Ifd& ifd,
-					       unsigned tag)
+    optional<typename T::value_type> find(const tiff::Ifd& ifd,
+					  unsigned tag)
     {
-	std::optional<typename T::value_type> val;
+	optional<typename T::value_type> val;
 	const auto v = ifd.find<T>(tag);
 	if (v.size() == 1) {
 	    val = v[0];

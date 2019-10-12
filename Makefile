@@ -20,7 +20,7 @@ libolymp.a: exif.o
 libolymp.a: filename.o
 	$(AR) -r $@ $^
 
-CXXFLAGS=-Wextra -Wall -pedantic -std=c++17 -g -Os
+CXXFLAGS=-Wextra -Wall -pedantic -std=c++14 -g -Os
 
 .PHONY: check checkv
 check: test/test
