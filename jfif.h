@@ -26,6 +26,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <memory>
 
 namespace jfif {
 
@@ -52,8 +53,8 @@ namespace jfif {
 
     /**
      * The vital parts of a JFIF segment: the marker (minus the FF
-     * part) and the data.  Standalone segments simply have empty
-     * data.
+     * part) and the data.  Standalone segments (e.g. SOI) simply have
+     * empty data.
      */
     struct Segment {
 	Segment() = default;
@@ -80,27 +81,7 @@ namespace jfif {
 	return marker < other.marker;
     }
 
-    /**
-     * Helper for growing segments incrementally -- and also for
-     * blackholing everything after the EOI marker.
-     */
-    struct Accumulator {
-	explicit Accumulator(std::vector<Segment>& dst);
-	Accumulator(const Accumulator&) = delete;
-	Accumulator& operator= (const Accumulator&) = delete;
-
-	bool building() const { return blackhole || missing; }
-
-	void emit(unsigned ch);
-	const uint8_t* feed(unsigned ch, const uint8_t *a, const uint8_t *b);
-	const uint8_t* feed(const uint8_t *a, const uint8_t *b);
-
-	uint8_t marker;
-	bool blackhole = false;
-	unsigned missing = 0;
-	std::vector<uint8_t> v;
-	std::vector<Segment>& dst;
-    };
+    struct Accumulator;
 
     /**
      * JFIF (JPEG) decoder, for extracting the segments (SOI, APP0,
@@ -110,11 +91,17 @@ namespace jfif {
      * Also doesn't care what segments are present -- except after the
      * first EOI, everything is discarded.  Don't know what the
      * standard says, but I have seen cameras produce files with
-     * fragments of segments after EOI.
+     * fragments of segments (i.e. garbage) after EOI.
+     *
+     * The decoder gets fed by a sequence of feed() terminated by
+     * end(). Throws Decoder::Error subclasses on decoding error.
      */
     class Decoder {
     public:
 	Decoder();
+	~Decoder();
+	Decoder(const Decoder&) = delete;
+	Decoder& operator= (const Decoder&) = delete;
 
 	class Error {};
 	class IllegalLength: public Error {};
@@ -127,9 +114,17 @@ namespace jfif {
 
 	std::vector<Segment> v;
 
+	enum class State {
+	    Start,
+	    Entropy,
+	    Segment,
+	    FF, FFmm, FFmmnn,
+	    Trailer
+	};
+
     private:
-	Accumulator acc;
-	std::vector<uint8_t> remainder;
+	std::unique_ptr<Accumulator> acc;
+	State state;
     };
 }
 
