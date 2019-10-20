@@ -17,6 +17,7 @@ libolymp.a: jfif.o
 libolymp.a: tiff/tiff.o
 libolymp.a: tiff/range.o
 libolymp.a: exif.o
+libolymp.a: gps.o
 libolymp.a: filename.o
 	$(AR) -r $@ $^
 
@@ -33,6 +34,7 @@ test/libtest.a: test/endian.o
 test/libtest.a: test/jfif.o
 test/libtest.a: test/tiff.o
 test/libtest.a: test/exif.o
+test/libtest.a: test/gps.o
 test/libtest.a: test/filename.o
 	$(AR) -r $@ $^
 
