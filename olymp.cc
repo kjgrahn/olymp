@@ -35,6 +35,7 @@
 #include "tiff/tiff.h"
 #include "exif.h"
 #include "filename.h"
+#include "wgs84.h"
 
 
 namespace {
@@ -108,11 +109,15 @@ namespace {
      */
     void render(std::ostream& os,
 		const exif::DateTimeOriginal& ts,
+		const wgs84::Coordinate& coord,
 		const Serial& nnnn)
     {
 	os << '\n'
 	   << filename(ts, nnnn) << '\n'
 	   << ts.date() << ' ' << ts.hhmm() << '\n';
+	if (coord.valid()) {
+	    os << '{' << coord << "}\n";
+	}
     }
 
     /**
@@ -158,13 +163,14 @@ namespace {
 	    const auto app1 = app1_of(fd);
 	    const tiff::File tiff {app1.v};
 
+	    const wgs84::Coordinate coord {tiff};
 	    const exif::DateTimeOriginal ts {tiff};
 	    if (!ts.valid()) {
 		errfile() << "no valid timestamp in EXIF data\n";
 		return false;
 	    }
 
-	    render(out, ts, nnnn);
+	    render(out, ts, coord, nnnn);
 
 	    if (rename && !mv_i(file, ts, nnnn)) {
 		errfile() << "cannot rename: " << std::strerror(errno) << '\n';

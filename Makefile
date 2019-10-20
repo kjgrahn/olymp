@@ -17,6 +17,7 @@ libolymp.a: jfif.o
 libolymp.a: tiff/tiff.o
 libolymp.a: tiff/range.o
 libolymp.a: exif.o
+libolymp.a: wgs84.o
 libolymp.a: gps.o
 libolymp.a: filename.o
 	$(AR) -r $@ $^

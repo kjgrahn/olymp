@@ -39,7 +39,7 @@ Stored inside the image, as
 data, is the full date, along with the time of day.
 .LP
 This utility prints a more readable variation of the file name,
-along with the date and time, based on the
+along with the date and time and possibly a GPS coordinate, based on the
 .SM EXIF
 information.
 Optionally, if the
@@ -67,6 +67,27 @@ The time recorded in the file is
 .I local
 time \- with no timezone information \- so that's what's printed here, too.
 For most purposes, that's acceptable.
+.
+.SS "GPS coordinates"
+.
+If the image is geotagged, i.e. contains Exif/GPS information from a
+GPS receiver or similar, the camera's coordinate is also included in the output.
+For example:
+.IP
+.ft CW
+.nf
+2018-07-24_2482.jpg
+2018-07-24 06:33
+{65.6542 14.5360}
+.fi
+.LP
+This is a
+.SM "\fBWGS\ 84"
+coordinate, in degrees, rounded to four decimals.
+It's printed this way irrespectively of the format used in the photo.
+The various error estimates which may or may not be encoded into
+the photo are also ignored \- so it's up to the reader to remember that
+there's an uncertainty involved.
 .
 .SS "Input file names"
 .
@@ -115,6 +136,17 @@ Nor does it use the current file name, except for the image serial number.
 can currently only handle images where the Exif information is encoded as
 .I little-endian
 TIFF, not big-endian.  I've never encountered the latter variant.
+.PP
+When an image contains GPS data, chances are it also contains an accurate
+GPS timestamp.
+.B Olymp
+doesn't use it, and doesn't warn if the camera's clock disagrees with it.
+.PP
+If the photo is taken in Sweden,
+the WGS 84 coordinate should be converted to
+.SM "\fBSWEREF\ 99"
+because the latter is more human-readable;
+for example you can estimate distances between two coordinates.
 .
 .SH "AUTHOR"
 J\(:orgen Grahn \[fo]grahn+src@snipabacken.se\[fc]
