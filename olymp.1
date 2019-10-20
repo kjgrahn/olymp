@@ -3,6 +3,9 @@
 .\" 
 .\"
 .ss 12 0
+.de BP
+.IP \\fB\\$*
+..
 .
 .TH olymp 1 "OCT 2019" "Olymp" "User Manuals"
 .
@@ -44,18 +47,31 @@ Optionally, if the
 option is given,
 the file is renamed in the same fashion.
 .LP
-The generated file names look like
-.BR 2005-07-06_0018.jpg .
-This assures that they sort correctly in e.g. directory listings,
-and guarantee their uniqueness (at least if you only use one camera on
+An output entry may look like:
+.IP
+.ft CW
+.nf
+2019-10-19_0074.jpg   \fInew filename, with no directory part\fP
+2019-10-19 14:56      \fPdate and time\fP
+.fi
+.LP
+The new file name assures that it sorts correctly in e.g. directory listings,
+and guarantees uniqueness (at least if you only use one camera on
 any particular day).
-.
 .PP
-.BR P7050124.JPG
-is an Olympus convention.
-Other digital cameras use some kind of fixed prefix, followed by an image serial number.
-For example,
-.BR DSC0124.JPG .
+The date and time come, as noted, from the
+.SM EXIF
+information, i.e. from the camera's clock.
+So the clock has to be set correctly for this information to be useful.
+The time recorded in the file is
+.I local
+time \- with no timezone information \- so that's what's printed here, too.
+For most purposes, that's acceptable.
+.
+.SS "Input file names"
+.
+All digital cameras I've seen encode an image serial number into the file name,
+after some kind of prefix.
 The only useful part of the file name is this serial number \- which
 seems to exist only here, not in the EXIF information.
 .PP
@@ -78,27 +94,20 @@ its own format
 .PP
 Some of these naming conventions are probably standardized.
 .
-.SH "NOTES"
+.SH "OPTIONS"
 .
-.IP \- 2m
-Renaming (with the
-.B \-e
-option) is always safe.
+.BP \-e
+Perform actual renaming of files; don't just list new names.
+.IP
+Renaming is always safe.
 Existing files are never overwritten, and files which are already
 correctly named aren't touched at all.
 .
-.IP \-
-.B olymp
+.SH "NOTES"
+.
+.B Olymp
 does not use the time stamp of the file.
 Nor does it use the current file name, except for the image serial number.
-.
-.IP \-
-All this assumes you
-.I do
-have a correctly set internal clock in your camera.
-Without it,
-.B olymp
-cannot do anything useful to the images.
 .
 .SH "BUGS"
 .
