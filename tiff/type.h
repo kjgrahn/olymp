@@ -61,14 +61,24 @@ namespace tiff {
 	    explicit Long(It& a) : val(le::eat32(a)) {}
 	};
 
+	namespace impl {
+
+	    template <class It>
+	    std::pair<unsigned, unsigned> eat_pair(It& a)
+	    {
+		unsigned m = le::eat32(a);
+		unsigned n = le::eat32(a);
+		return {m, n};
+	    }
+	}
+
 	struct Rational: public Type<5, 8> {
 	    using value_type = std::pair<unsigned, unsigned>;
 	    using array_type = std::vector<value_type>;
 	    const value_type val;
 
 	    template <class It>
-	    explicit Rational(It& a) : val{le::eat32(a),
-					   le::eat32(a)} {}
+	    explicit Rational(It& a) : val{impl::eat_pair(a)} {}
 	};
 
 	using Sbyte     = Type<6,  1>;
