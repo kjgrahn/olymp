@@ -15,6 +15,7 @@ olymp \- enumerate and/or rename digital camera photos
 .SH "SYNOPSIS"
 .B olymp
 .RB [ \-e ]
+.RB [ \-W ]
 .I file
 \&...
 .br
@@ -76,17 +77,21 @@ For example:
 .IP
 .ft CW
 .nf
-2018-07-24_2482.jpg
-2018-07-24 06:33
-{65.6542 14.5360}
+2018-07-24_2482.jpg     2018-07-24_2482.jpg
+2018-07-24 06:33        2018-07-24 06:33
+{65.6542 14.5360}       {7281446 478656}
 .fi
 .LP
-This is a
+The leftmost version includes a
 .SM "\fBWGS\ 84"
 coordinate, in degrees, rounded to four decimals.
-It's printed this way irrespectively of the format used in the photo.
+The version to the right includes the same coordinate expressed in
+.SM "\fBSWEREF\ 99\ TM"
+with 1\ m resolution: seven digits northing, six digits easting.
+.PP
+The coordinates are printed this way irrespectively of the format used in the image.
 The various error estimates which may or may not be encoded into
-the photo are also ignored \- so it's up to the reader to remember that
+the image are also ignored \- so it's up to the reader to remember that
 there's an uncertainty involved.
 .
 .SS "Input file names"
@@ -124,6 +129,13 @@ Renaming is always safe.
 Existing files are never overwritten, and files which are already
 correctly named aren't touched at all.
 .
+.BP \-W
+Always print coordinates in
+.SM "\fBWGS\ 84\fP."
+By default,
+.SM "\fBSWEREF\ 99\ TM"
+is used for locations which seem like they could be in Sweden.
+.
 .SH "NOTES"
 .
 .B Olymp
@@ -132,24 +144,40 @@ Nor does it use the current file name, except for the image serial number.
 .
 .SH "BUGS"
 .
+.IP \- 2m
 .B Olymp
 can currently only handle images where the Exif information is encoded as
 .I little-endian
 TIFF, not big-endian.  I've never encountered the latter variant.
-.PP
+.
+.IP \-
 When an image contains GPS data, chances are it also contains an accurate
 GPS timestamp.
 .B Olymp
 doesn't use it, and doesn't warn if the camera's clock disagrees with it.
-.PP
-If the photo is taken in Sweden,
-the WGS 84 coordinate should be converted to
-.SM "\fBSWEREF\ 99"
-because the latter is more human-readable;
-for example you can estimate distances between two coordinates.
+.
+.IP \-
+As mentioned above, showing coordinates with high resolution without also giving
+an estimated error can be misleading.
+It's not clear to me how to get an understandable error estimate from a camera,
+and anyway there is no standard notation for precision in
+.SM "SWEREF\ 99\ TM."
+.
+.IP \-
+People outside Sweden have no use for
+.SM "\fBSWEREF\ 99\ TM"
+coordinates.
 .
 .SH "AUTHOR"
-J\(:orgen Grahn \[fo]grahn+src@snipabacken.se\[fc]
+J\(:orgen Grahn \[fo]grahn+src@snipabacken.se\[fc].
+.PP
+Conversion to
+.SM "SWEREF\ 99"
+coordinates
+relies on the
+.B libproj
+library, also known as
+.BR \s-1PROJ.4\s0 ,
 .
 .SH "LICENSE"
 The GNU General Public License (GPL) version 2 or (at your option) version 3.

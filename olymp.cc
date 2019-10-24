@@ -21,6 +21,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <memory>
 #include <iostream>
 #include <sstream>
 #include <cstring>
@@ -35,7 +36,10 @@
 #include "tiff/tiff.h"
 #include "exif.h"
 #include "filename.h"
+
 #include "wgs84.h"
+#include "sweref99.h"
+#include "transform.h"
 
 
 namespace {
@@ -105,22 +109,6 @@ namespace {
     }
 
     /**
-     * Render the output for one image.
-     */
-    void render(std::ostream& os,
-		const exif::DateTimeOriginal& ts,
-		const wgs84::Coordinate& coord,
-		const Serial& nnnn)
-    {
-	os << '\n'
-	   << filename(ts, nnnn) << '\n'
-	   << ts.date() << ' ' << ts.hhmm() << '\n';
-	if (coord.valid()) {
-	    os << '{' << coord << "}\n";
-	}
-    }
-
-    /**
      * A bit like 'mv -i'.
      */
     bool mv_i(const std::string& from,
@@ -149,22 +137,31 @@ namespace {
      */
     class Olymp {
     public:
-	Olymp(std::ostream& out, std::ostream& err, bool rename);
+	Olymp(std::ostream& out, std::ostream& err,
+	      bool rename,
+	      bool prefer_sweref);
 	void run(const std::vector<std::string>& files);
 	int status = 0;
 
     private:
 	bool runf(const std::string& file);
+	void render(const exif::DateTimeOriginal& ts,
+		    const Serial& nnnn,
+		    const wgs84::Coordinate& coord);
 
-	std::ostream& out;
+	std::ostream& os;
 	std::ostream& err;
 	const bool rename;
+	const std::unique_ptr<Transform> transform;
     };
 
-    Olymp::Olymp(std::ostream& out, std::ostream& err, bool rename)
-	: out{out},
+    Olymp::Olymp(std::ostream& out, std::ostream& err,
+		 bool rename,
+		 bool prefer_sweref)
+	: os{out},
 	  err{err},
-	  rename{rename}
+	  rename{rename},
+	  transform{prefer_sweref? new Transform: nullptr}
     {}
 
     void Olymp::run(const std::vector<std::string>& files)
@@ -199,7 +196,7 @@ namespace {
 		return false;
 	    }
 
-	    render(out, ts, coord, nnnn);
+	    render(ts, nnnn, coord);
 
 	    if (rename && !mv_i(file, ts, nnnn)) {
 		errfile() << "cannot rename: " << std::strerror(errno) << '\n';
@@ -223,18 +220,41 @@ namespace {
 
 	return false;
     }
+
+    /**
+     * Render the output for one image.
+     */
+    void Olymp::render(const exif::DateTimeOriginal& ts,
+		       const Serial& nnnn,
+		       const wgs84::Coordinate& coord)
+    {
+	os << '\n'
+	   << filename(ts, nnnn) << '\n'
+	   << ts.date() << ' ' << ts.hhmm() << '\n';
+
+	if (transform) {
+	    const sweref99::Coordinate sw = (*transform)(coord);
+	    if (sw.valid()) {
+		os << '{' << sw << "}\n";
+		return;
+	    }
+	}
+	if (coord.valid()) {
+	    os << '{' << coord << "}\n";
+	}
+    }
 }
 
 int main(int argc, char ** argv)
 {
     const std::string prog = argv[0] ? argv[0] : "olymp";
     const std::string usage = std::string("usage: ")
-	+ prog + " [-e] file ...\n"
+	+ prog + " [-e] [-W] file ...\n"
 	"       "
 	+ prog + " --help\n"
 	"       "
 	+ prog + " --version";
-    const char optstring[] = "e";
+    const char optstring[] = "eW";
     const struct option long_options[] = {
 	{"help", 0, 0, 'H'},
 	{"version", 0, 0, 'V'},
@@ -245,6 +265,7 @@ int main(int argc, char ** argv)
     std::cout.sync_with_stdio(false);
 
     bool rename = false;
+    bool prefer_sweref = true;
 
     int ch;
     while((ch = getopt_long(argc, argv,
@@ -253,6 +274,9 @@ int main(int argc, char ** argv)
 	switch(ch) {
 	case 'e':
 	    rename = true;
+	    break;
+	case 'W':
+	    prefer_sweref = false;
 	    break;
 	case 'H':
 	    std::cout << usage << '\n';
@@ -272,7 +296,8 @@ int main(int argc, char ** argv)
 	}
     }
 
-    Olymp olymp {std::cout, std::cerr, rename};
+    Olymp olymp {std::cout, std::cerr,
+		 rename, prefer_sweref};
     olymp.run({argv+optind, argv+argc});
     return olymp.status;
 }

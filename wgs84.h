@@ -10,6 +10,7 @@
 #include <iosfwd>
 
 #include "tiff/tiff.h"
+#include <proj_api.h>
 
 namespace wgs84 {
 
@@ -19,14 +20,20 @@ namespace wgs84 {
      */
     class Coordinate {
     public:
+	Coordinate() = delete;
+	Coordinate(double latitude, double longitude)
+	    : longitude(longitude),
+	      latitude(latitude)
+	{}
 	explicit Coordinate(const tiff::File&);
 
 	bool valid() const;
 	std::ostream& put(std::ostream& os) const;
+	projLP lp() const;
 
     private:
-	double longitude = 0;
-	double latitude = 0;
+	double longitude;
+	double latitude;
     };
 
     inline

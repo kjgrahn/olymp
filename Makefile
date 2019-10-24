@@ -11,13 +11,15 @@ seg: seg.o libolymp.a
 	$(CXX) $(CXXFLAGS) -o $@ seg.o -L. -lolymp
 
 olymp: olymp.o libolymp.a
-	$(CXX) $(CXXFLAGS) -o $@ olymp.o -L. -lolymp
+	$(CXX) $(CXXFLAGS) -o $@ olymp.o -L. -lolymp -lproj
 
 libolymp.a: jfif.o
 libolymp.a: tiff/tiff.o
 libolymp.a: tiff/range.o
 libolymp.a: exif.o
 libolymp.a: wgs84.o
+libolymp.a: sweref99.o
+libolymp.a: transform.o
 libolymp.a: gps.o
 libolymp.a: filename.o
 	$(AR) -r $@ $^
@@ -36,13 +38,15 @@ test/libtest.a: test/jfif.o
 test/libtest.a: test/tiff.o
 test/libtest.a: test/exif.o
 test/libtest.a: test/gps.o
+test/libtest.a: test/sweref99.o
+test/libtest.a: test/transform.o
 test/libtest.a: test/filename.o
 	$(AR) -r $@ $^
 
 test/%.o: CPPFLAGS+=-I.
 
 test/test: test/test.o test/libtest.a libolymp.a
-	$(CXX) $(CXXFLAGS) -o $@ test/test.o -Ltest/ -ltest -L. -lolymp
+	$(CXX) $(CXXFLAGS) -o $@ test/test.o -Ltest/ -ltest -L. -lolymp -lproj
 
 test/test.cc: test/libtest.a
 	orchis -o $@ $^
