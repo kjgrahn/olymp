@@ -4,8 +4,8 @@
  * All rights reserved.
  *
  */
-#ifndef OLYMP_COORDINATE_H
-#define OLYMP_COORDINATE_H
+#ifndef OLYMP_WGS84_H
+#define OLYMP_WGS84_H
 
 #include <iosfwd>
 

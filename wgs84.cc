@@ -21,6 +21,11 @@ namespace {
      * ... I suspect those hints have been ignored by Exif writers,
      * and I will ignore them, too.
      *
+     *   A photo from a Sony DSC-HX200V I have access to encodes
+     *   degrees, minutes, and seconds with three decimals:
+     *   d/1, m/1, s/1000.  xkcd calls that "pointing at Waldo on
+     *   a page"; see below.
+     *
      * Returns 0 on error.  Error includes division by zero, but not
      * an out of range result.
      *
