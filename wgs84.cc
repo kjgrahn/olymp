@@ -7,6 +7,7 @@
 
 #include "gps.h"
 #include <iostream>
+#include <cassert>
 #include <unordered_map>
 
 using wgs84::Coordinate;
@@ -90,6 +91,7 @@ bool Coordinate::valid() const
 
 std::ostream& Coordinate::put(std::ostream& os) const
 {
+    assert(valid());
     char buf[20];
     // https://xkcd.com/2170/
     std::snprintf(buf, sizeof buf,

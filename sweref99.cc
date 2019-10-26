@@ -6,6 +6,7 @@
 #include "sweref99.h"
 
 #include <iostream>
+#include <cassert>
 
 using sweref99::Coordinate;
 
@@ -34,6 +35,7 @@ bool Coordinate::valid() const
 
 std::ostream& Coordinate::put(std::ostream& os) const
 {
+    assert(valid());
     char buf[20];
     std::snprintf(buf, sizeof buf,
 		  "%.0f %.0f", north, east);
