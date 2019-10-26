@@ -140,14 +140,43 @@ namespace {
     }
 
     /**
-     * Like olympv() but for a single file, and with a boolean result.
+     * Investigate 'files', a sequence of file names, and print a
+     * better name, and date/time stamp, to 'out'.
+     *
+     * If 'rename' is set, also try to rename them accordingly.
+     * Whines to 'err' if something goes wrong, and also sets a
+     * non-zero exit code in 'status'.
      */
-    bool olymp(const std::string& file,
-	       std::ostream& out,
-	       std::ostream& err,
-	       const bool rename)
+    class Olymp {
+    public:
+	Olymp(std::ostream& out, std::ostream& err, bool rename);
+	void run(const std::vector<std::string>& files);
+	int status = 0;
+
+    private:
+	bool runf(const std::string& file);
+
+	std::ostream& out;
+	std::ostream& err;
+	const bool rename;
+    };
+
+    Olymp::Olymp(std::ostream& out, std::ostream& err, bool rename)
+	: out{out},
+	  err{err},
+	  rename{rename}
+    {}
+
+    void Olymp::run(const std::vector<std::string>& files)
     {
-	auto errfile = [&file, &err] () -> std::ostream& {
+	for (const auto& file: files) {
+	    if(!runf(file)) status = 1;
+	}
+    }
+
+    bool Olymp::runf(const std::string& file)
+    {
+	auto errfile = [&] () -> std::ostream& {
 			   err << file << ": error: ";
 			   return err;
 		       };
@@ -193,26 +222,6 @@ namespace {
 	}
 
 	return false;
-    }
-
-    /**
-     * Investigate 'files', a sequence of file names, and print a
-     * better name, and date/time stamp, to 'out'.
-     *
-     * If 'rename' is set, also try to rename them accordingly.
-     * Whines to 'err' if something goes wrong, and also returns a
-     * non-zero exit code.
-     */
-    int olympv(const std::vector<std::string>& files,
-	       std::ostream& out,
-	       std::ostream& err,
-	       const bool rename)
-    {
-	int rc = 0;
-	for (const auto& file: files) {
-	    if (!olymp(file, out, err, rename)) rc = 1;
-	}
-	return rc;
     }
 }
 
@@ -263,6 +272,7 @@ int main(int argc, char ** argv)
 	}
     }
 
-    return olympv({argv+optind, argv+argc},
-		  std::cout, std::cerr, rename);
+    Olymp olymp {std::cout, std::cerr, rename};
+    olymp.run({argv+optind, argv+argc});
+    return olymp.status;
 }
