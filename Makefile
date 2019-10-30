@@ -8,10 +8,10 @@ all: seg
 all: test/test
 
 seg: seg.o libolymp.a
-	$(CXX) $(CXXFLAGS) -o $@ seg.o -L. -lolymp
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ seg.o -L. -lolymp
 
 olymp: olymp.o libolymp.a
-	$(CXX) $(CXXFLAGS) -o $@ olymp.o -L. -lolymp -lproj
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ olymp.o -L. -lolymp -lproj
 
 libolymp.a: jfif.o
 libolymp.a: tiff/tiff.o
@@ -46,7 +46,7 @@ test/libtest.a: test/filename.o
 test/%.o: CPPFLAGS+=-I.
 
 test/test: test/test.o test/libtest.a libolymp.a
-	$(CXX) $(CXXFLAGS) -o $@ test/test.o -Ltest/ -ltest -L. -lolymp -lproj
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ test/test.o -Ltest/ -ltest -L. -lolymp -lproj
 
 test/test.cc: test/libtest.a
 	orchis -o $@ $^
