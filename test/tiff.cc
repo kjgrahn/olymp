@@ -288,4 +288,77 @@ namespace tiff {
 	    void one_long(TC)	{ tiff::optional::one_long(data); }
 	}
     }
+
+    namespace broken {
+
+	using orchis::TC;
+	const std::string exif {"45 78 69 66 00 00"};
+
+	void assert_empty(const char* s)
+	{
+	    const File f {h(exif + s)};
+	    orchis::assert_true(f.ifd0.empty());
+	    orchis::assert_true(f.exif.empty());
+	    orchis::assert_true(f.gps.empty());
+	}
+
+	template <class Err>
+	void assert_throws(const char* s)
+	{
+	    try {
+		const File f {h(exif + s)};
+	    }
+	    catch (const Err&) {
+		return;
+	    }
+	    catch (...) {
+		throw orchis::Failure {"threw the wrong exception"};
+	    }
+	    throw orchis::Failure {"should have thrown"};
+	}
+
+	void empty(TC)
+	{
+	    assert_empty("4d4d 002a 00000008 0000 00000000");
+	    assert_empty("4949 2a00 08000000 0000 00000000");
+	}
+
+	void segfault(TC)
+	{
+	    assert_throws<Segfault>("4949 2a00");
+	    assert_throws<Segfault>("4949 2a");
+	    assert_throws<Segfault>("4949");
+	    assert_throws<Segfault>("49");
+	    assert_throws<Segfault>("");
+
+	    assert_throws<Segfault>("4d4d 002a");
+	    assert_throws<Segfault>("4d4d 00");
+	    assert_throws<Segfault>("4d4d");
+	    assert_throws<Segfault>("4d");
+	    assert_throws<Segfault>("");
+
+	    assert_throws<Segfault>("4949 2a00 09000000 0000 00000000");
+	    assert_throws<Segfault>("4949 2a00 08000000 0000 000000");
+	    assert_throws<Segfault>("4949 2a00 08000000 0100 00000000");
+
+	    assert_throws<Segfault>("4d4d 002a 00000009 0000 00000000");
+	    assert_throws<Segfault>("4d4d 002a 00000008 0000 000000");
+	    assert_throws<Segfault>("4d4d 002a 00000008 0001 00000000");
+	}
+
+	void error(TC)
+	{
+	    assert_throws<Error>("4949 2b00 08000000 0000 00000000");
+	    assert_throws<Error>("4949 002a 08000000 0000 00000000");
+	    assert_throws<Error>("4900 2a00 08000000 0000 00000000");
+	    assert_throws<Error>("0049 2a00 08000000 0000 00000000");
+	    assert_throws<Error>("0000 2a00 08000000 0000 00000000");
+
+	    assert_throws<Error>("4d4d 002b 00000008 0000 00000000");
+	    assert_throws<Error>("4d4d 2a00 00000008 0000 00000000");
+	    assert_throws<Error>("4d00 002a 00000008 0000 00000000");
+	    assert_throws<Error>("004d 002a 00000008 0000 00000000");
+	    assert_throws<Error>("0000 002a 00000008 0000 00000000");
+	}
+    }
 }
