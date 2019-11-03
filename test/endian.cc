@@ -8,27 +8,33 @@ namespace endianness {
 
     void big(orchis::TC)
     {
-	std::array<uint8_t, 4> v { 0x11, 0x22, 0x33, 0x44 };
-	auto a = begin(v);
-	orchis::assert_eq(be::eat32(a), 0x11223344);
-	orchis::assert_eq(a, end(v));
+	const tiff::Motorola be;
 
-	auto b = begin(v);
-	orchis::assert_eq(be::eat16(b), 0x1122);
-	orchis::assert_eq(be::eat16(b), 0x3344);
-	orchis::assert_eq(b, end(v));
+	std::array<uint8_t, 4> v { 0x11, 0x22, 0x33, 0x44 };
+	const uint8_t* a = v.data();
+	const auto e = a + v.size();
+	orchis::assert_eq(be.eat32(a), 0x11223344);
+	orchis::assert_eq(a, e);
+
+	const uint8_t* b = v.data();
+	orchis::assert_eq(be.eat16(b), 0x1122);
+	orchis::assert_eq(be.eat16(b), 0x3344);
+	orchis::assert_eq(b, e);
     }
 
     void little(orchis::TC)
     {
-	std::array<uint8_t, 4> v { 0x11, 0x22, 0x33, 0x44 };
-	auto a = begin(v);
-	orchis::assert_eq(le::eat32(a), 0x44332211);
-	orchis::assert_eq(a, end(v));
+	const tiff::Intel le;
 
-	auto b = begin(v);
-	orchis::assert_eq(le::eat16(b), 0x2211);
-	orchis::assert_eq(le::eat16(b), 0x4433);
-	orchis::assert_eq(b, end(v));
+	std::array<uint8_t, 4> v { 0x11, 0x22, 0x33, 0x44 };
+	const uint8_t* a = v.data();
+	const auto e = a + v.size();
+	orchis::assert_eq(le.eat32(a), 0x44332211);
+	orchis::assert_eq(a, e);
+
+	const uint8_t* b = v.data();
+	orchis::assert_eq(le.eat16(b), 0x2211);
+	orchis::assert_eq(le.eat16(b), 0x4433);
+	orchis::assert_eq(b, e);
     }
 }

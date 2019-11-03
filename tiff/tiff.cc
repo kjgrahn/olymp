@@ -65,9 +65,10 @@ namespace {
      */
     Range ifd_of(const Range& tiff, unsigned offset)
     {
+	const Intel en;
 	const Range count {tiff, offset, 2};
 	auto it = std::begin(count);
-	unsigned n = le::eat16(it);
+	unsigned n = en.eat16(it);
 	return {tiff, count, n*12};
     }
 
@@ -77,9 +78,10 @@ namespace {
      */
     Range ifd_of(const Range& tiff)
     {
+	const Intel en;
 	auto it = std::begin(tiff);
 	it += 4;
-	unsigned offset = le::eat32(it);
+	unsigned offset = en.eat32(it);
 	return ifd_of(tiff, offset);
     }
 
@@ -140,16 +142,17 @@ namespace {
  */
 Range Ifd::find(const unsigned tag, const unsigned type) const
 {
+    const Intel en;
     auto a = std::begin(ifd);
     const auto b = std::end(ifd);
     while (a!=b) {
-	if (le::eat16(a)!=tag)  { a += 10; continue; }
-	if (le::eat16(a)!=type) { a += 8; continue; }
-	const unsigned count = le::eat32(a);
+	if (en.eat16(a)!=tag)  { a += 10; continue; }
+	if (en.eat16(a)!=type) { a += 8; continue; }
+	const unsigned count = en.eat32(a);
 
 	unsigned n = size(type, count);
 	if (n>4) {
-	    const unsigned offset = le::eat32(a);
+	    const unsigned offset = en.eat32(a);
 	    return {tiff, offset, n};
 	}
 	else {
