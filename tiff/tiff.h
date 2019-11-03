@@ -31,8 +31,10 @@ namespace tiff {
     class Ifd {
     public:
 	Ifd() = default;
-	Ifd(const Range& tiff, const Range& ifd)
-	    : tiff{tiff},
+	Ifd(const Endian& endian,
+	    const Range& tiff, const Range& ifd)
+	    : endian{endian},
+	      tiff{tiff},
 	      ifd{ifd}
 	{}
 
@@ -40,6 +42,8 @@ namespace tiff {
 
 	template <class T>
 	typename T::array_type find(unsigned tag) const;
+
+	const Endian& endian;
 
     private:
 	Range tiff;
@@ -72,7 +76,7 @@ namespace tiff {
 	auto a = r.begin();
 	const auto b = r.end();
 	while (a!=b) {
-	    v.push_back(T(a).val);
+	    v.push_back(T(endian, a).val);
 	}
 	return v;
     }
@@ -153,7 +157,7 @@ namespace tiff {
 
     private:
 	const Range tiff;
-	const bool bigendian;
+	const std::unique_ptr<Endian> endian;
 
     public:
 	Ifd ifd0;

@@ -16,8 +16,6 @@ namespace tiff {
 
     namespace type {
 
-	using en = Intel;
-
 	/* The primitive TIFF types.  The interesting things about one
 	 * of them are:
 	 * - the numeric encoding
@@ -38,7 +36,7 @@ namespace tiff {
 	    const value_type val;
 
 	    template <class It>
-	    explicit Byte(It& a) : val(en().eat8(a)) {}
+	    explicit Byte(const Endian& en, It& a) : val(en.eat8(a)) {}
 	};
 
 	struct Ascii: public Type<2, 1> {
@@ -51,7 +49,7 @@ namespace tiff {
 	    const value_type val;
 
 	    template <class It>
-	    explicit Short(It& a) : val(en().eat16(a)) {}
+	    explicit Short(const Endian& en, It& a) : val(en.eat16(a)) {}
 	};
 
 	struct Long: public Type<4, 4> {
@@ -60,16 +58,16 @@ namespace tiff {
 	    const value_type val;
 
 	    template <class It>
-	    explicit Long(It& a) : val(en().eat32(a)) {}
+	    explicit Long(const Endian& en, It& a) : val(en.eat32(a)) {}
 	};
 
 	namespace impl {
 
 	    template <class It>
-	    std::pair<unsigned, unsigned> eat_pair(It& a)
+	    std::pair<unsigned, unsigned> eat_pair(const Endian& en, It& a)
 	    {
-		unsigned m = en().eat32(a);
-		unsigned n = en().eat32(a);
+		unsigned m = en.eat32(a);
+		unsigned n = en.eat32(a);
 		return {m, n};
 	    }
 	}
@@ -80,7 +78,7 @@ namespace tiff {
 	    const value_type val;
 
 	    template <class It>
-	    explicit Rational(It& a) : val{impl::eat_pair(a)} {}
+	    explicit Rational(const Endian& en, It& a) : val{impl::eat_pair(en, a)} {}
 	};
 
 	using Sbyte     = Type<6,  1>;
@@ -91,7 +89,7 @@ namespace tiff {
 	    const value_type val;
 
 	    template <class It>
-	    explicit Undefined(It& a) : val(en().eat8(a)) {}
+	    explicit Undefined(const Endian& en, It& a) : val(en.eat8(a)) {}
 	};
 
 	using Sshort    = Type<8,  2>;

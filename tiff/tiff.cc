@@ -31,8 +31,8 @@ namespace {
 
     /**
      * What should be TIFF of an APP1 segment: the stuff after an Exif
-     * marker.  Throws if there's no Exif marker or no valid TIFF
-     * header.
+     * marker.  Throws if there's no Exif marker or no TIFF header
+     * (the header content is validated later).
      */
     Range tiff_of(const std::vector<uint8_t>& app1)
     {
@@ -41,21 +41,32 @@ namespace {
 	if (!equal(exif, {'E','x','i','f',0,0})) throw Error {};
 
 	const Range tiff {app, exif};
-	const Range h {tiff, 0, 4};
-	if (!equal(h, {'I','I',42,0})) throw Error {};
-
-	Range {tiff, h, 4};
+	Range {tiff, 0, 8};
 	return tiff;
     }
 
     /**
-     * True if the TIFF header (of a blob known to contain one)
+     * The endianness of a TIFF header; throws if it's neither Intel nor Motorola.
      * says it's big-endian.
      */
-    bool is_bigendian(const Range& tiff)
+    std::unique_ptr<Endian> endianness_of(const Range& tiff)
     {
-	const Range endianness {tiff, 0, 2};
-	return equal(endianness, {'M','M'});
+	const Range endianness {tiff, 0, 4};
+	auto it = std::begin(endianness);
+	std::unique_ptr<Endian> p;
+	switch (*it) {
+	case 'M':
+	    p.reset(new Motorola); break;
+	case 'I':
+	    p.reset(new Intel); break;
+	default:
+	    throw Error {};
+	}
+	unsigned m0 = p->eat8(it);
+	unsigned m1 = p->eat8(it);
+	unsigned fortytwo = p->eat16(it);
+	if (m0!=m1 || fortytwo != 42) throw Error {};
+	return p;
     }
 
     /**
@@ -63,9 +74,8 @@ namespace {
      * returned is the 12-octet IFD entries, excluding the field count
      * and the final next IFD offset.
      */
-    Range ifd_of(const Range& tiff, unsigned offset)
+    Range ifd_of(const Endian& en, const Range& tiff, unsigned offset)
     {
-	const Intel en;
 	const Range count {tiff, offset, 2};
 	auto it = std::begin(count);
 	unsigned n = en.eat16(it);
@@ -78,33 +88,32 @@ namespace {
      * The first IFD in the TIFF file 'tiff', which is large enough to
      * contain the initial IFD offset.
      */
-    Range ifd_of(const Range& tiff)
+    Range ifd_of(const Endian& en, const Range& tiff)
     {
-	const Intel en;
 	auto it = std::begin(tiff);
 	it += 4;
 	unsigned offset = en.eat32(it);
-	return ifd_of(tiff, offset);
+	return ifd_of(en, tiff, offset);
     }
 
     /**
      * The IFD at the offset pointed out by a tiff::Long in 'ifd'.
-     * This is how you find the Exif and GPS IFDs.
+     * This is how you find the Exif and GPS IFDs in IFD 0.
      */
     Range ifd_of(const Range& tiff, const Ifd& ifd, const unsigned tag)
     {
 	const auto offset = find<type::Long>(ifd, tag);
 	if (!offset) return {};
-	return ifd_of(tiff, *offset);
+	return ifd_of(ifd.endian, tiff, *offset);
     }
 }
 
 File::File(const std::vector<uint8_t>& app1)
     : tiff {tiff_of(app1)},
-      bigendian {is_bigendian(tiff)},
-      ifd0 {tiff, ifd_of(tiff)},
-      exif {tiff, ifd_of(tiff, ifd0, 0x8769)},
-      gps  {tiff, ifd_of(tiff, ifd0, 0x8825)}
+      endian {endianness_of(tiff)},
+      ifd0 {*endian, tiff, ifd_of(*endian, tiff)},
+      exif {*endian, tiff, ifd_of(tiff, ifd0, 0x8769)},
+      gps  {*endian, tiff, ifd_of(tiff, ifd0, 0x8825)}
 {}
 
 namespace {
@@ -144,17 +153,16 @@ namespace {
  */
 Range Ifd::find(const unsigned tag, const unsigned type) const
 {
-    const Intel en;
     auto a = std::begin(ifd);
     const auto b = std::end(ifd);
     while (a!=b) {
-	if (en.eat16(a)!=tag)  { a += 10; continue; }
-	if (en.eat16(a)!=type) { a += 8; continue; }
-	const unsigned count = en.eat32(a);
+	if (endian.eat16(a)!=tag)  { a += 10; continue; }
+	if (endian.eat16(a)!=type) { a += 8; continue; }
+	const unsigned count = endian.eat32(a);
 
 	unsigned n = size(type, count);
 	if (n>4) {
-	    const unsigned offset = en.eat32(a);
+	    const unsigned offset = endian.eat32(a);
 	    return {tiff, offset, n};
 	}
 	else {
