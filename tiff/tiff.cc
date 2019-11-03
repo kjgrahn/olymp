@@ -69,7 +69,9 @@ namespace {
 	const Range count {tiff, offset, 2};
 	auto it = std::begin(count);
 	unsigned n = en.eat16(it);
-	return {tiff, count, n*12};
+	const Range entries {tiff, count, n*12};
+	const Range next {tiff, entries, 4};
+	return entries;
     }
 
     /**
