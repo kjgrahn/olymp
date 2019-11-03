@@ -283,7 +283,7 @@ int main(int argc, char ** argv)
 	    return 0;
 	    break;
 	case 'V':
-	    std::cout << "olymp 3.3\n"
+	    std::cout << "olymp 3.4\n"
 		      << "Copyright (c) 2002--2012, 2014, 2019 Jörgen Grahn\n";
 	    return 0;
 	    break;
