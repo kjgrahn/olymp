@@ -8,7 +8,6 @@
 #include <iostream>
 #include <algorithm>
 #include <cstdio>
-#include <regex>
 
 namespace {
 
@@ -23,24 +22,57 @@ namespace {
 	return c;
     }
 
-    struct {
-	const std::regex olymp {R"([Pp]...\d{4}\.[Jj][Pp][Gg])"};
-	const std::regex dsc   {R"([Dd][Ss][Cc].\d{4}\.[Jj][Pp][Gg])"};
-	const std::regex imag  {R"([Ii][Mm][Aa][Gg]\d{4}\.[Jj][Pp][Gg])"};
-	const std::regex self  {R"(\d{4}-\d{2}-\d{2}_\d{4}\.jpg)"};
-    } re;
+    bool digit(char ch)
+    {
+	return '0' <= ch && ch <= '9';
+    }
 
+    /**
+     * The 1--4 last digits of the last group of digits, or "".
+     */
+    std::string last_digits(const char* const a,
+			    const char* const b)
+    {
+	auto c = b;
+	while (a!=c) {
+	    char ch = *(c-1);
+	    if (digit(ch)) break;
+	    c--;
+	}
+	while (a!=c) {
+	    char ch = *(c-1);
+	    if (!digit(ch)) break;
+	    c--;
+	}
+	auto d = c;
+	while (c!=b) {
+	    if (!digit(*c)) break;
+	    c++;
+	}
+	d = std::max(d, c-4);
+	return {d, c};
+    }
+
+    /**
+     * Extract a serial number from the path [a, b), or return 0.
+     *
+     * - the directory part, if any, is ignored
+     * - the last sequence of digits is the serial number
+     * - if that sequence has more than four digits, only the
+     *   last four are considered
+     *
+     * foo12345bar -> 2345
+     * foo12bar    ->   12
+     */
     unsigned serial(const char* a, const char* const b)
     {
 	auto c = find_last(a, b, '/');
 	if (c!=b) a = ++c;
 
-	if (regex_match(a, b, re.olymp)) return std::strtoul(a+4, nullptr, 10);
-	if (regex_match(a, b, re.dsc))   return std::strtoul(a+4, nullptr, 10);
-	if (regex_match(a, b, re.imag))  return std::strtoul(a+4, nullptr, 10);
-	if (regex_match(a, b, re.self))  return std::strtoul(a+11, nullptr, 10);
+	const auto s = last_digits(a, b);
+	if (s.empty()) return 0;
 
-	return 0;
+	return std::strtoul(s.c_str(), nullptr, 10);
     }
 }
 

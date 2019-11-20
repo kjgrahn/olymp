@@ -38,6 +38,24 @@ namespace filename {
 	assert_eq(serial("1990-01-02_1234.jpg"), s1234);
     }
 
+    void freeform(TC)
+    {
+	assert_eq(serial("1234"),  s1234);
+	assert_eq(serial("1234a"), s1234);
+	assert_eq(serial("a1234"), s1234);
+
+	assert_eq(serial("78a1234"), s1234);
+	assert_eq(serial("7891234"), s1234);
+
+	assert_eq(serial("78a12"), Serial{12});
+    }
+
+    void missing(TC)
+    {
+	assert_eq(serial("foo"), Serial{0});
+	assert_eq(serial(""), Serial{0});
+    }
+
     void path(TC)
     {
 	assert_eq(s1234, serial("pa051234.jpg"));
