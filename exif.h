@@ -9,8 +9,6 @@
 
 #include "tiff/tiff.h"
 
-#include <regex>
-
 
 /**
  * Selected Exif attributes from Exif 2.3.
@@ -24,6 +22,10 @@ namespace exif {
 	using Type = T;
     };
 
+    /* In original, something like "2019:11:20 23:07:39" but we want
+     * to access it as "2019-11-20" and "23:07".  We don't sanity-check
+     * very carefully.
+     */
     class DateTimeOriginal : public Field<tiff::type::Ascii, 0x9003> {
     public:
 	explicit DateTimeOriginal(const tiff::File& tiff);
@@ -33,8 +35,7 @@ namespace exif {
 	bool valid() const;
 
     private:
-	std::string s;
-	std::smatch match;
+	const std::string s;
     };
 
     typedef Field<tiff::type::Rational, 0x829A> ExposureTime;
