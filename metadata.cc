@@ -40,11 +40,19 @@ std::string Metadata::neighbor_of(const std::string& path) const
  * Render the output.
  */
 void Metadata::render(std::ostream& os,
-		      const Transform* const transform) const
+		      const Transform* const transform,
+		      bool use_seconds) const
 {
     os << '\n'
        << filename() << '\n'
-       << ts.date() << ' ' << ts.hhmm() << '\n';
+       << ts.date() << ' ';
+
+    if (use_seconds) {
+	os << ts.hhmmss() << '\n';
+    }
+    else {
+	os << ts.hhmm() << '\n';
+    }
 
     if (transform) {
 	const sweref99::Coordinate sw = (*transform)(coord);
@@ -56,4 +64,14 @@ void Metadata::render(std::ostream& os,
     if (coord.valid()) {
 	os << '{' << coord << "}\n";
     }
+}
+
+bool Metadata::near(const Metadata& other) const
+{
+    return ts.near(other.ts);
+}
+
+bool near(const Metadata& a, const Metadata& b)
+{
+    return a.near(b);
 }

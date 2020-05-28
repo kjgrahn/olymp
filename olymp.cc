@@ -35,6 +35,7 @@
 #include "tiff/tiff.h"
 #include "exif.h"
 #include "metadata.h"
+#include "cluster.h"
 
 #include "wgs84.h"
 #include "sweref99.h"
@@ -113,6 +114,8 @@ namespace {
 	return !err;
     }
 
+    bool not_near(const Metadata&, const Metadata&) { return false; }
+
     /**
      * Investigate 'files', a sequence of file names, and print a
      * better name, and date/time stamp, to 'out'.
@@ -125,36 +128,47 @@ namespace {
     public:
 	Olymp(std::ostream& out, std::ostream& err,
 	      bool rename,
-	      bool prefer_sweref);
+	      bool prefer_sweref,
+	      bool form_clusters);
 	void run(const std::vector<std::string>& files);
 	int status = 0;
 
     private:
-	bool runf(const std::string& file);
+	bool runf(Cluster<Metadata>& cluster,
+		  const std::string& file);
+	void render(const std::vector<Metadata>& v);
 
 	std::ostream& os;
 	std::ostream& err;
 	const bool rename;
 	const std::unique_ptr<Transform> transform;
+	std::function<bool(const Metadata&, const Metadata&)> near;
     };
 
     Olymp::Olymp(std::ostream& out, std::ostream& err,
 		 bool rename,
-		 bool prefer_sweref)
+		 bool prefer_sweref,
+		 bool form_clusters)
 	: os{out},
 	  err{err},
 	  rename{rename},
-	  transform{prefer_sweref? new Transform: nullptr}
+	  transform{prefer_sweref? new Transform: nullptr},
+	  near{form_clusters? ::near: not_near}
     {}
 
     void Olymp::run(const std::vector<std::string>& files)
     {
+	Cluster<Metadata> cluster(near);
+
 	for (const auto& file: files) {
-	    if(!runf(file)) status = 1;
+	    if(!runf(cluster, file)) status = 1;
 	}
+
+	render(cluster.end());
     }
 
-    bool Olymp::runf(const std::string& file)
+    bool Olymp::runf(Cluster<Metadata>& cluster,
+		     const std::string& file)
     {
 	auto errfile = [&] () -> std::ostream& {
 			   err << file << ": error: ";
@@ -180,7 +194,7 @@ namespace {
 		return false;
 	    }
 
-	    meta.render(os, transform.get());
+	    render(cluster.add(meta));
 
 	    if (rename && !mv_i(file, meta)) {
 		errfile() << "cannot rename: " << std::strerror(errno) << '\n';
@@ -204,18 +218,25 @@ namespace {
 
 	return false;
     }
+
+    void Olymp::render(const std::vector<Metadata>& v)
+    {
+	for (const Metadata& meta: v) {
+	    meta.render(os, transform.get(), v.size() > 1);
+	}
+    }
 }
 
 int main(int argc, char ** argv)
 {
     const std::string prog = argv[0] ? argv[0] : "olymp";
     const std::string usage = std::string("usage: ")
-	+ prog + " [-e] [-W] file ...\n"
+	+ prog + " [-eMW] file ...\n"
 	"       "
 	+ prog + " --help\n"
 	"       "
 	+ prog + " --version";
-    const char optstring[] = "eW";
+    const char optstring[] = "eMW";
     const struct option long_options[] = {
 	{"help", 0, 0, 'H'},
 	{"version", 0, 0, 'V'},
@@ -227,6 +248,7 @@ int main(int argc, char ** argv)
 
     bool rename = false;
     bool prefer_sweref = true;
+    bool form_clusters = true;
 
     int ch;
     while((ch = getopt_long(argc, argv,
@@ -235,6 +257,9 @@ int main(int argc, char ** argv)
 	switch(ch) {
 	case 'e':
 	    rename = true;
+	    break;
+	case 'M':
+	    form_clusters = false;
 	    break;
 	case 'W':
 	    prefer_sweref = false;
@@ -258,7 +283,7 @@ int main(int argc, char ** argv)
     }
 
     Olymp olymp {std::cout, std::cerr,
-		 rename, prefer_sweref};
+		 rename, prefer_sweref, form_clusters};
     olymp.run({argv+optind, argv+argc});
     return olymp.status;
 }

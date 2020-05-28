@@ -32,7 +32,9 @@ namespace exif {
 
 	std::string date() const;
 	std::string hhmm() const;
+	std::string hhmmss() const;
 	bool valid() const;
+	bool near(const DateTimeOriginal& other) const;
 
     private:
 	const std::string s;

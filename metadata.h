@@ -29,13 +29,17 @@ public:
     std::string filename() const;
     std::string neighbor_of(const std::string& path) const;
 
+    bool near(const Metadata& other) const;
     void render(std::ostream& os,
-		const Transform* transform) const;
+		const Transform* transform,
+		bool use_seconds) const;
 
 private:
     Serial nnnn;
     exif::DateTimeOriginal ts;
     wgs84::Coordinate coord;
 };
+
+bool near(const Metadata& a, const Metadata& b);
 
 #endif

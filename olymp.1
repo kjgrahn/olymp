@@ -7,15 +7,14 @@
 .IP \\fB\\$*
 ..
 .
-.TH olymp 1 "NOV 2019" "Olymp" "User Manuals"
+.TH olymp 1 "MAY 2020" "Olymp" "User Manuals"
 .
 .SH "NAME"
 olymp \- enumerate and/or rename digital camera photos
 .
 .SH "SYNOPSIS"
 .B olymp
-.RB [ \-e ]
-.RB [ \-W ]
+.RB [ \-eMW ]
 .I file
 \&...
 .br
@@ -59,7 +58,9 @@ An output entry may look like:
 The new file name assures that it sorts correctly in e.g. directory listings,
 and guarantees uniqueness (at least if you use only one camera on
 any particular day).
-.PP
+.
+.SS "Date and time"
+.
 The date and time come, as noted, from the
 .SM EXIF
 information, i.e. from the camera's clock.
@@ -68,6 +69,20 @@ The time recorded in the file is
 .I local
 time \- with no timezone information \- so that's what's printed here, too.
 For most purposes, that's acceptable.
+.PP
+Sometimes it's useful to know the time the photo was taken with better precision
+than a minute.  Clusters of photos are printed with seconds in the time stamp,
+if they were taken with gaps of no more than 60 seconds, e.g.:
+.IP
+.ft CW
+.nf
+2019-10-19 14:56
+2019-10-19 14:58:45
+2019-10-19 14:59:20
+.fi
+.LP
+This is useful because if you, for example, took two photos of a plant within
+fifteen seconds, it's probably the same individual in both of them.
 .
 .SS "GPS coordinates"
 .
@@ -131,6 +146,9 @@ Perform actual renaming of files; don't just list new names.
 Renaming is always safe.
 Existing files are never overwritten, and files which are already
 correctly named aren't touched at all.
+.
+.BP \-M
+Never print time with seconds; just use hours and minutes.
 .
 .BP \-W
 Always print coordinates in
