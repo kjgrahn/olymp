@@ -21,6 +21,7 @@ libolymp.a: wgs84.o
 libolymp.a: sweref99.o
 libolymp.a: transform.o
 libolymp.a: gps.o
+libolymp.a: metadata.o
 libolymp.a: filename.o
 	$(AR) -r $@ $^
 

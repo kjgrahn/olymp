@@ -23,7 +23,6 @@
 #include <algorithm>
 #include <memory>
 #include <iostream>
-#include <sstream>
 #include <cstring>
 
 #include <getopt.h>
@@ -35,7 +34,7 @@
 #include "jfif.h"
 #include "tiff/tiff.h"
 #include "exif.h"
-#include "filename.h"
+#include "metadata.h"
 
 #include "wgs84.h"
 #include "sweref99.h"
@@ -97,28 +96,15 @@ namespace {
     }
 
     /**
-     * The JPG image file name formed by a certain date and serial
-     * number.
-     */
-    std::string filename(const exif::DateTimeOriginal& ts,
-			 const Serial& nnnn)
-    {
-	std::ostringstream oss;
-	oss << ts.date() << '_' << nnnn << ".jpg";
-	return oss.str();
-    }
-
-    /**
      * A bit like 'mv -i'.
      */
     bool mv_i(const std::string& from,
-	      const exif::DateTimeOriginal& ts,
-	      const Serial& nnnn)
+	      const Metadata& meta)
     {
 	/* Use link(2) instead of rename(2) since it's important to
 	 * fail rather than destroy existing files.
 	 */
-	const auto to = neighbour(from, filename(ts, nnnn));
+	const auto to = meta.neighbor_of(from);
 	if (to==from) return true;
 	int err = link(from.c_str(), to.c_str());
 	if (err) return false;
@@ -145,9 +131,6 @@ namespace {
 
     private:
 	bool runf(const std::string& file);
-	void render(const exif::DateTimeOriginal& ts,
-		    const Serial& nnnn,
-		    const wgs84::Coordinate& coord);
 
 	std::ostream& os;
 	std::ostream& err;
@@ -189,16 +172,17 @@ namespace {
 	    const auto app1 = app1_of(fd);
 	    const tiff::File tiff {app1.v};
 
-	    const wgs84::Coordinate coord {tiff};
-	    const exif::DateTimeOriginal ts {tiff};
-	    if (!ts.valid()) {
+	    const Metadata meta {nnnn,
+				 exif::DateTimeOriginal {tiff},
+				 wgs84::Coordinate {tiff}};
+	    if (!meta.valid()) {
 		errfile() << "no valid timestamp in EXIF data\n";
 		return false;
 	    }
 
-	    render(ts, nnnn, coord);
+	    meta.render(os, transform.get());
 
-	    if (rename && !mv_i(file, ts, nnnn)) {
+	    if (rename && !mv_i(file, meta)) {
 		errfile() << "cannot rename: " << std::strerror(errno) << '\n';
 		return false;
 	    }
@@ -219,29 +203,6 @@ namespace {
 	}
 
 	return false;
-    }
-
-    /**
-     * Render the output for one image.
-     */
-    void Olymp::render(const exif::DateTimeOriginal& ts,
-		       const Serial& nnnn,
-		       const wgs84::Coordinate& coord)
-    {
-	os << '\n'
-	   << filename(ts, nnnn) << '\n'
-	   << ts.date() << ' ' << ts.hhmm() << '\n';
-
-	if (transform) {
-	    const sweref99::Coordinate sw = (*transform)(coord);
-	    if (sw.valid()) {
-		os << '{' << sw << "}\n";
-		return;
-	    }
-	}
-	if (coord.valid()) {
-	    os << '{' << coord << "}\n";
-	}
     }
 }
 
