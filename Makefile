@@ -41,6 +41,7 @@ test/libtest.a: test/exif.o
 test/libtest.a: test/gps.o
 test/libtest.a: test/sweref99.o
 test/libtest.a: test/transform.o
+test/libtest.a: test/cluster.o
 test/libtest.a: test/filename.o
 	$(AR) -r $@ $^
 

@@ -21,7 +21,7 @@ namespace exif {
 	    "0100"              // Exif IFD with one tag
 	    "0390 0200 14000000 2c00 0000" // DateTimeOriginal
 	    "0000 0000"         // no next IFD
-	    "32 30 31 39 3a 30 39 3a 31 32 20 32 32 3a 33 30 3a 30 30 00");
+	    "32 30 31 39 3a 30 39 3a 31 32 20 32 32 3a 33 30 3a 35 39 00");
     }
 
     void datetime(orchis::TC)
@@ -32,5 +32,6 @@ namespace exif {
 	assert_true(dt.valid());
 	assert_eq(dt.date(), "2019-09-12");
 	assert_eq(dt.hhmm(), "22:30");
+	assert_eq(dt.hhmmss(), "22:30:59");
     }
 }
