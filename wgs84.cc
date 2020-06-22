@@ -67,7 +67,8 @@ namespace {
 		    const Sign& sign,
 		    const Digits& digits)
     {
-	if (datum.val != "WGS-84") return 0;
+	bool non_wgs = datum.val.size() && datum.val != "WGS-84";
+	if (non_wgs) return 0;
 	auto it = signs.find(sign.val);
 	if (it == end(signs)) return 0;
 	if (!digits.val) return 0;

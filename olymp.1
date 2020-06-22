@@ -7,7 +7,7 @@
 .IP \\fB\\$*
 ..
 .
-.TH olymp 1 "MAY 2020" "Olymp" "User Manuals"
+.TH olymp 1 "JUN 2020" "Olymp" "User Manuals"
 .
 .SH "NAME"
 olymp \- enumerate and/or rename digital camera photos
@@ -164,6 +164,14 @@ does not use the time stamp of the file.
 Nor does it use the current file name, except for the image serial number.
 .
 .SH "BUGS"
+.
+.IP \- 2m
+GPS coordinates are treated as
+.SM "\fBWGS\ 84"
+when there is no evidence some other coordinate system is used.
+This is because some smartphones, for whatever reasons, omit the
+.SM GPSMapDatum
+field which carries this information.
 .
 .IP \- 2m
 When an image contains GPS data, chances are it also contains an accurate
