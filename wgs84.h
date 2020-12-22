@@ -10,6 +10,7 @@
 #include <iosfwd>
 
 #include "tiff/tiff.h"
+#define ACCEPT_USE_OF_DEPRECATED_PROJ_API_H
 #include <proj_api.h>
 
 namespace wgs84 {
