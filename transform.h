@@ -1,6 +1,6 @@
 /* -*- c++ -*-
  *
- * Copyright (c) 2012, 2019 Jörgen Grahn
+ * Copyright (c) 2012, 2019, 2021 Jörgen Grahn
  * All rights reserved.
  */
 #ifndef OLYMP_TRANSFORM_H
@@ -8,6 +8,8 @@
 
 #include "wgs84.h"
 #include "sweref99.h"
+
+struct PJconsts;
 
 /**
  * Conversion WGS 84 --> SWEREF 99 TM.
@@ -21,10 +23,8 @@ public:
 
     sweref99::Coordinate operator() (const wgs84::Coordinate& c) const;
 
-    static const char* pj_release();
-
 private:
-    void* t;
+    PJconsts* t;
 };
 
 #endif

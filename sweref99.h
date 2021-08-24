@@ -8,8 +8,7 @@
 #define OLYMP_SWEREF99_H
 
 #include <iosfwd>
-#define ACCEPT_USE_OF_DEPRECATED_PROJ_API_H
-#include <proj_api.h>
+#include <proj.h>
 
 namespace sweref99 {
 
@@ -19,7 +18,7 @@ namespace sweref99 {
     class Coordinate {
     public:
 	Coordinate(double north, double east);
-	explicit Coordinate(const projXY& xy);
+	explicit Coordinate(const PJ_COORD& xy);
 
 	bool valid() const;
 	std::ostream& put(std::ostream& os) const;

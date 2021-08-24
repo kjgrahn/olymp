@@ -10,8 +10,7 @@
 #include <iosfwd>
 
 #include "tiff/tiff.h"
-#define ACCEPT_USE_OF_DEPRECATED_PROJ_API_H
-#include <proj_api.h>
+#include <proj.h>
 
 namespace wgs84 {
 
@@ -30,7 +29,7 @@ namespace wgs84 {
 
 	bool valid() const;
 	std::ostream& put(std::ostream& os) const;
-	projLP lp() const;
+	PJ_COORD lp() const;
 
     private:
 	double longitude;
