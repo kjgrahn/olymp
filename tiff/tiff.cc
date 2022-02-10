@@ -46,8 +46,8 @@ namespace {
     }
 
     /**
-     * The endianness of a TIFF header; throws if it's neither Intel nor Motorola.
-     * says it's big-endian.
+     * The endianness of a TIFF header; throws if it's neither Intel
+     * nor Motorola.
      */
     std::unique_ptr<Endian> endianness_of(const Range& tiff)
     {

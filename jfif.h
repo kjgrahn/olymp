@@ -15,7 +15,7 @@
  * - There may be FF padding before the marker.
  * - Entropy-encoded data contains no markers, only FF 00 sequences
  *   (and the FF padding sequence at the end I guess, if you want to
- *   look at it that way.
+ *   look at it that way).
  * - The image begins with a SOI standalone marker and ends with an
  *   EOI marker.
  *
