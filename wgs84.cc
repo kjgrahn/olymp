@@ -56,6 +56,8 @@ namespace {
 	{"E", 1}, {"W", -1}
     };
 
+    const std::string data[] = { "WGS-84", "WGS84", "" };
+
     /**
      * Form a latitude or longitude as a positive or negative double,
      * from the funny form used for Exif GPS coordinates.
@@ -67,7 +69,7 @@ namespace {
 		    const Sign& sign,
 		    const Digits& digits)
     {
-	bool non_wgs = datum.val.size() && datum.val != "WGS-84";
+	bool non_wgs = std::find(begin(data), end(data), datum.val) == end(data);
 	if (non_wgs) return 0;
 	auto it = signs.find(sign.val);
 	if (it == end(signs)) return 0;
